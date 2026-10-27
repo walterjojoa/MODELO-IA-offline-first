@@ -80,3 +80,17 @@ def test_tendencias_needs_the_key():
 
 def test_tendencias_rejects_an_empty_list():
     assert client.post("/tendencias", json={"lecturas": []}, headers=KEY).status_code == 422
+
+
+# ---------- /combinaciones ----------
+
+def coupled(n=40, extra=None):
+    rows = []
+    for i in range(n):
+        phase = math.sin(i * math.pi / 4)
+        rows.append({"registrado_en": (START + timedelta(hours=6 * i)).isoformat(),
+                     "temp_c": round(14.5 + 2.5 * phase, 2),
+                     "ph": round(7.2 + 0.35 * phase, 3)})
+    if extra:
+        rows.append({"registrado_en": (START + timedelta(hours=6 * n)).isoformat(), **extra})
+    return rows
