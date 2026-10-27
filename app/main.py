@@ -3,15 +3,17 @@ recent readings and stores whatever comes back as alerts. This service has no da
 
 import hmac
 import os
-from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from urllib.error import URLError
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-from app import anomalies
+from app import anomalies, forecast, open_meteo
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
+COLOMBIA = timedelta(hours=-5)
+"""Colombia has no daylight saving time, so a fixed offset is exact."""
 
 app = FastAPI(title="La Cocha - IA", version=VERSION)
 
@@ -53,3 +55,48 @@ def detect(request: AnalysisRequest) -> list[AnomalyResponse]:
     found = anomalies.evaluate([r.model_dump() for r in request.lecturas])
     return [AnomalyResponse(variable=a.variable, valor=a.value, esperado=a.expected,
                             puntaje=a.score, mensaje=a.message) for a in found]
+
+
+class ForecastRequest(BaseModel):
+    lecturas: list[Reading] = Field(min_length=1, max_length=5000)
+    dias: int = Field(default=2, ge=1, le=7)
+
+
+class DayResponse(BaseModel):
+    fecha: str
+    minima: float
+    maxima: float
+    promedio: float
+
+
+class ForecastResponse(BaseModel):
+    dias: list[DayResponse]
+    error_tipico: float | None
+    """°C the model typically missed the pond's own readings by; the min-max range already includes it."""
+    reaccion_horas: float | None
+    """How slowly the pond follows the air (tau): a spring-fed pond reacts in days, a shallow one in hours."""
+    lecturas_usadas: int
+    mensaje: str
+
+
+@app.post("/pronostico-temperatura", dependencies=[Depends(require_key)])
+def water_forecast(request: ForecastRequest) -> ForecastResponse:
+    """Water temperature for the coming days, learned from the pond's readings and the air at El Encano."""
+    try:
+        hours, air = open_meteo.air_temperature(request.dias + 1)
+    except (URLError, TimeoutError, ValueError, KeyError) as e:
+        raise HTTPException(status_code=503, detail="No se pudo consultar el clima (Open-Meteo)") from e
+    readings = [(r.registrado_en.astimezone(timezone.utc), r.temp_c)
+                for r in request.lecturas if r.temp_c is not None]
+    model = forecast.fit(hours, air, readings)
+    if model is None:
+        return ForecastResponse(
+            dias=[], error_tipico=None, reaccion_horas=None, lecturas_usadas=0,
+            mensaje=f"Faltan lecturas: se necesitan al menos {forecast.MIN_READINGS} de temperatura "
+                    f"en los últimos {open_meteo.PAST_DAYS - forecast.SPIN_UP.days} días")
+    now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    days = forecast.predict(model, hours, air, since=now, utc_offset=COLOMBIA)[:request.dias + 1]
+    return ForecastResponse(
+        dias=[DayResponse(fecha=d.date, minima=d.low, maxima=d.high, promedio=d.mean) for d in days],
+        error_tipico=round(model.error, 2), reaccion_horas=model.tau, lecturas_usadas=model.readings,
+        mensaje="La mínima y la máxima de cada día ya incluyen el margen de error del modelo (80 %)")
