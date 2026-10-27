@@ -37,3 +37,19 @@ def falling(per_day=0.4, days=6.0, n=24, start=8.6):
 
 
 OXYGEN_RANGE = {"variable": "oxigeno_mg_l", "critico_min": 5.0, "critico_max": None}
+
+
+# ---------- /tendencias ----------
+
+def test_a_drift_comes_back_with_its_date():
+    response = client.post("/tendencias", json={"lecturas": falling(), "rangos": [OXYGEN_RANGE]},
+                           headers=KEY)
+    assert response.status_code == 200
+    [found] = response.json()
+    assert found["variable"] == "oxigeno_mg_l"
+    assert found["por_dia"] < 0
+    assert found["dias_al_limite"] is not None
+    assert found["limite"] == 5.0
+    assert "bajando" in found["mensaje"]
+    assert set(found) == {"variable", "por_dia", "acuerdo", "dias_cubiertos", "dias_al_limite",
+                          "limite", "urgente", "mensaje"}
