@@ -46,3 +46,10 @@ from dataclasses import dataclass
 from statistics import median
 
 from app.anomalies import VARIABLES, fmt
+
+MIN_HISTORY = 20
+"""
+Estimating the shape of a cloud takes many more rows than the algebra's bare minimum of one more
+than the number of variables. With fewer than this the covariance is mostly noise, and a cloud
+whose shape is noise calls anything unusual.
+"""
