@@ -72,3 +72,23 @@ class Combination:
     distance: float
     cutoff: float
     message: str
+
+
+def solve(matrix: list[list[float]], vector: list[float]) -> list[float] | None:
+    """`matrix · x = vector` by Gaussian elimination with partial pivoting. None if it is singular."""
+    n = len(vector)
+    rows = [row[:] + [vector[i]] for i, row in enumerate(matrix)]
+    for column in range(n):
+        pivot = max(range(column, n), key=lambda r: abs(rows[r][column]))
+        if abs(rows[pivot][column]) < 1e-12:
+            return None
+        rows[column], rows[pivot] = rows[pivot], rows[column]
+        for r in range(column + 1, n):
+            factor = rows[r][column] / rows[column][column]
+            for c in range(column, n + 1):
+                rows[r][c] -= factor * rows[column][c]
+    answer = [0.0] * n
+    for r in reversed(range(n)):
+        total = rows[r][n] - sum(rows[r][c] * answer[c] for c in range(r + 1, n))
+        answer[r] = total / rows[r][r]
+    return answer
