@@ -152,3 +152,9 @@ def test_history_rows_missing_a_variable_are_left_out():
         row.pop("ph")
     # Only ten complete rows are left, below the minimum
     assert evaluate(with_newest(history, temp_c=12.2, ph=7.52)) is None
+
+
+# ---------- the cutoffs ----------
+
+def test_the_cutoff_grows_with_the_number_of_variables():
+    assert cutoff_for(1) < cutoff_for(2) < cutoff_for(3)
