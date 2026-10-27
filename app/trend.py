@@ -151,3 +151,22 @@ def check(variable: str, series: list[tuple[datetime, float]],
     return Trend(variable, round(per_day, 3), round(agreement, 2), round(covered, 1),
                  round(days_left, 1), limit, days_left <= URGENT_DAYS,
                  f"{message}. A este ritmo llega al límite de {fmt(limit)}{v.unit} {when}.")
+
+
+def evaluate(readings: list[dict], ranges: dict[str, dict] | None = None) -> list[Trend]:
+    """
+    Looks at every variable in the readings. Missing values are skipped, as in the rules.
+
+    Without `ranges` the slope is still reported, because "oxygen has been falling 0.4 mg/L a day
+    for a week" is worth knowing on its own; what cannot be worked out without them is when it turns
+    into a problem.
+    """
+    ranges = ranges or {}
+    found = []
+    for variable in VARIABLES:
+        series = [(r["registrado_en"], r[variable]) for r in readings if r.get(variable) is not None]
+        limits = ranges.get(variable, {})
+        trend = check(variable, series, limits.get("critico_min"), limits.get("critico_max"))
+        if trend:
+            found.append(trend)
+    return found
