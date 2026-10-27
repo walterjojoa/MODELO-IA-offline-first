@@ -194,3 +194,10 @@ class BatchRequest(BaseModel):
     lecturas: list[Reading] = Field(default_factory=list, max_length=5000)
     dias_adelante: int = Field(default=30, ge=1, le=365)
     peso_objetivo_g: float | None = Field(default=None, gt=0)
+
+
+class FindingResponse(BaseModel):
+    clase: str
+    urgente: bool
+    puntaje: float
+    mensaje: str
