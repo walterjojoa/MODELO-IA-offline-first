@@ -23,3 +23,8 @@ KEY = {"X-API-Key": "secreta"}
 @pytest.fixture(autouse=True)
 def key(monkeypatch):
     monkeypatch.setenv("IA_API_KEY", "secreta")
+
+
+def readings(values, hours=6.0, variable="oxigeno_mg_l"):
+    return [{"registrado_en": (START + timedelta(hours=hours * i)).isoformat(), variable: v}
+            for i, v in enumerate(values)]
