@@ -113,3 +113,8 @@ def test_cold_water_with_high_ph_is_caught_while_each_value_passes():
     assert found.distance > found.cutoff
     assert found.variables == ("temp_c", "ph")
     assert "no se había visto" in found.message
+
+
+def test_a_reading_that_follows_the_pattern_passes():
+    # Warm water with high pH: exactly what this pond does every day at noon
+    assert evaluate(with_newest(coupled(), temp_c=16.9, ph=7.54)) is None
