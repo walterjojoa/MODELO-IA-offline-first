@@ -62,3 +62,6 @@ With a three-day window the thresholds were swept:
 false alarm in twenty: by the third they stop looking at them, and then none of this is worth
 anything. Losing the 8 % noisiest trends costs less than losing their trust.
 """
+
+HORIZON_DAYS = 7
+"""Beyond a week the straight line says more about the line than about the pond."""
