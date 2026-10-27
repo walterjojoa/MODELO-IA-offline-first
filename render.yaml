@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: modelo-ia-offline-first
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /salud
+    envVars:
+      # La misma clave va en el backend, que es el único que llama a este servicio
+      - key: IA_API_KEY
+        generateValue: true
