@@ -53,3 +53,10 @@ def test_a_drift_comes_back_with_its_date():
     assert "bajando" in found["mensaje"]
     assert set(found) == {"variable", "por_dia", "acuerdo", "dias_cubiertos", "dias_al_limite",
                           "limite", "urgente", "mensaje"}
+
+
+def test_a_flat_pond_comes_back_empty():
+    flat = readings([9.0, 9.1, 8.9, 9.2, 8.8, 9.0, 9.1, 8.9, 9.0, 9.1, 8.9, 9.0, 9.2, 8.8, 9.1, 9.0])
+    response = client.post("/tendencias", json={"lecturas": flat, "rangos": [OXYGEN_RANGE]},
+                           headers=KEY)
+    assert response.status_code == 200 and response.json() == []
