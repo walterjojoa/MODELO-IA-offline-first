@@ -107,3 +107,10 @@ def water_forecast(request: ForecastRequest) -> ForecastResponse:
         dias=[DayResponse(fecha=d.date, minima=d.low, maxima=d.high, promedio=d.mean) for d in days],
         error_tipico=round(model.error, 2), reaccion_horas=model.tau, lecturas_usadas=model.readings,
         mensaje="La mínima y la máxima de cada día ya incluyen el margen de error del modelo (80 %)")
+
+
+class Range(BaseModel):
+    """One row of the backend's parametros_rango. Without it a trend cannot be turned into a date."""
+    variable: str
+    critico_min: float | None = None
+    critico_max: float | None = None
