@@ -83,3 +83,11 @@ def test_two_weighings_too_close_together_cannot_fit():
                          temperatures=temperatures(13.0, 5), now=START + timedelta(days=5))
     assert not projection.tgc_fitted
     assert any("demasiado juntas" in n for n in projection.notes)
+
+
+def test_without_temperature_nothing_is_projected():
+    projection = project(Batch(STOCKED, 10000), weighings=[Weighing(START, 20.0)],
+                         temperatures=[], now=START)
+    assert projection.projected_weight_g is None
+    assert projection.tgc is None
+    assert any("temperatura" in n for n in projection.notes)
