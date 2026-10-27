@@ -151,3 +151,15 @@ def fmt(x: float) -> str:
 
 def _days(start: datetime, end: datetime) -> float:
     return (end - start).total_seconds() / SECONDS_PER_DAY
+
+
+def mean_temperature(temperatures: list[Temperature], start: datetime, end: datetime) -> float | None:
+    """
+    The stretch's temperature, by median.
+
+    Median and not mean for the usual reason: a reading taken with the sensor out of the water moves
+    a short stretch's mean by several degrees, and here the temperature multiplies the projected
+    growth directly.
+    """
+    inside = [t.celsius for t in temperatures if start <= t.at <= end]
+    return median(inside) if inside else None
