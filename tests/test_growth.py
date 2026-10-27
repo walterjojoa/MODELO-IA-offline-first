@@ -241,3 +241,10 @@ def test_two_extra_deaths_are_not_an_acceleration():
     projection = project(Batch(STOCKED, 2000), deaths=deaths,
                          temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
     assert [f for f in of_kind(projection, "mortalidad") if "aceleró" in f.message] == []
+
+
+def test_a_batch_that_starts_dying_out_of_nowhere_is_urgent():
+    projection = project(Batch(STOCKED, 2000), deaths=[Death(START + timedelta(days=55), 30)],
+                         temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
+    found = [f for f in of_kind(projection, "mortalidad") if "Empezó algo" in f.message]
+    assert len(found) == 1 and found[0].urgent
