@@ -47,3 +47,7 @@ Reference coefficient for rainbow trout, with the same warning the project alrea
 ranges, because it is just as true: a reference value without a citation, to be adjusted with the
 producer and cited from AUNAP/FAO before the pilot. It only rules until the batch has two weighings.
 """
+
+MIN_DAYS_BETWEEN_WEIGHINGS = 7.0
+"""Under a week the difference in weight is more sampling error than growth: weighing thirty fry out
+of ten thousand has a spread of its own, and in five days growth does not beat it."""
