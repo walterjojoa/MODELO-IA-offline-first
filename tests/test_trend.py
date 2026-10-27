@@ -99,3 +99,10 @@ def test_the_drift_that_anomalies_does_not_flag_is_flagged_here():
     assert trend.per_day < 0
     assert trend.days_to_limit is not None and trend.days_to_limit <= 7
     assert "bajando" in trend.message and "límite de 5" in trend.message
+
+
+def test_a_jump_is_the_other_module_s_business():
+    # A pond sitting flat with one reading far below: no drift to report, and anomalies.py has it
+    flat = [9.0, 9.1, 8.9, 9.2, 8.8, 9.0, 9.1, 8.9, 9.0, 9.1, 8.9, 9.0, 9.2, 8.8, 9.1, 6.0]
+    assert check("oxigeno_mg_l", series(flat), critical_min=5.0) is None
+    assert anomaly_check("oxigeno_mg_l", flat[:-1], flat[-1]) is not None
