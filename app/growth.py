@@ -57,3 +57,14 @@ POOR_GROWTH_FRACTION = 0.6
 Below this fraction of the reference the batch is deemed to be growing badly. Not a measured value:
 a criterion, named so the producer can move it once there are several cycles to compare against.
 """
+
+RECENT_DAYS = 7.0
+"""
+"Recently" is a fixed week, not a fraction of the batch's life.
+
+The first version compared the last third against the first two, and that dilutes exactly the case
+that matters: an outbreak kills over four or five days, and in a two-month batch the last third is
+twenty days, fifteen of them quiet. Measured on the same test batch, the third gave 2.6 times the
+earlier rate and the week gives 9.5, which is what is actually happening. A week is also the unit a
+pond gets looked at in.
+"""
