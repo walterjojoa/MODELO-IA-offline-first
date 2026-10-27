@@ -16,3 +16,4 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+START = datetime(2026, 10, 1, 6, tzinfo=timezone.utc)
