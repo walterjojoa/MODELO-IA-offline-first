@@ -155,3 +155,12 @@ def test_growing_far_below_what_the_water_allows_says_where_to_look():
     assert "ración" in found[0].message
     # And it keeps projecting: the batch is growing, just badly
     assert projection.projected_weight_g > projection.current_weight_g
+
+
+def test_a_batch_growing_well_gets_no_warning():
+    days = 60
+    weighings = [Weighing(START, 20.0),
+                 Weighing(START + timedelta(days=days), grown(20.0, REFERENCE_TGC, 13.0, days))]
+    projection = project(Batch(STOCKED, 10000), weighings=weighings,
+                         temperatures=temperatures(13.0, days), now=START + timedelta(days=days))
+    assert of_kind(projection, "crecimiento") == []
