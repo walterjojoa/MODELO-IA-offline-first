@@ -170,3 +170,17 @@ def test_readings_out_of_order_give_the_same_answer():
     readings = with_newest(coupled(), temp_c=12.2, ph=7.52)
     shuffled = [readings[-1]] + readings[:-1]
     assert evaluate(shuffled) == evaluate(readings)
+
+
+# ---------- how the variables are named in the message ----------
+
+def test_ph_keeps_its_capital_in_the_middle_of_a_sentence():
+    """
+    "ph" in lower case is simply wrong: pH is chemical notation, not a word. It is the kind of
+    detail that makes a caretaker trust the message less.
+    """
+    from app.combination import in_sentence
+
+    assert in_sentence("pH") == "pH"
+    assert in_sentence("Temperatura") == "temperatura"
+    assert in_sentence("Oxígeno") == "oxígeno"
