@@ -158,3 +158,7 @@ def test_history_rows_missing_a_variable_are_left_out():
 
 def test_the_cutoff_grows_with_the_number_of_variables():
     assert cutoff_for(1) < cutoff_for(2) < cutoff_for(3)
+
+
+def test_more_variables_than_expected_fall_back_to_the_last_cutoff():
+    assert cutoff_for(9) == cutoff_for(3)
