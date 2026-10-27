@@ -198,3 +198,7 @@ def test_the_horizon_has_a_cap():
 def test_the_target_weight_cannot_be_negative():
     assert client.post("/proyeccion-lote", json=batch_body(peso_objetivo_g=-5),
                        headers=KEY).status_code == 422
+
+
+def test_proyeccion_needs_the_key():
+    assert client.post("/proyeccion-lote", json=batch_body()).status_code == 401
