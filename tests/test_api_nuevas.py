@@ -17,3 +17,4 @@ from app.main import app
 
 client = TestClient(app)
 START = datetime(2026, 10, 1, 6, tzinfo=timezone.utc)
+KEY = {"X-API-Key": "secreta"}
