@@ -348,3 +348,42 @@ def _project_survival(batch, deaths, days_ahead, now, findings, notes) -> dict:
         "survival_pct": round(survival, 1),
         "deaths_per_day": round(per_day, 2),
     }
+
+
+def _check_acceleration(deaths, stocked, now, findings) -> None:
+    """
+    Whether the batch is dying faster this week than before.
+
+    The question the running total does not answer: a batch can be carrying an acceptable survival
+    figure and be in the middle of a die-off right now.
+    """
+    if not deaths:
+        return
+    if _days(stocked, now) < RECENT_DAYS + MIN_EARLIER_DAYS:
+        return  # too new: there is no "before" to compare the week against
+
+    cut = now - timedelta(days=RECENT_DAYS)
+    earlier = sum(d.quantity for d in deaths if d.at < cut)
+    recent = sum(d.quantity for d in deaths if d.at >= cut)
+    if recent < MIN_RECENT_DEATHS:
+        return
+
+    earlier_rate = earlier / _days(stocked, cut)
+    recent_rate = recent / RECENT_DAYS
+
+    if earlier_rate == 0:
+        # It started dying now, with no precedent: the most urgent thing that can happen
+        findings.append(Finding("mortalidad", True, round(recent_rate, 2),
+                                f"El lote no tenía mortalidad registrada y en los últimos "
+                                f"{round(RECENT_DAYS)} días van {recent} muertes "
+                                f"({fmt(recent_rate)} por día). Empezó algo."))
+        return
+
+    times = recent_rate / earlier_rate
+    if times < ACCELERATION_FACTOR:
+        return
+    findings.append(Finding(
+        "mortalidad", times >= 2 * ACCELERATION_FACTOR, round(times, 2),
+        f"La mortalidad se aceleró: {fmt(recent_rate)} muertes por día en los últimos "
+        f"{round(RECENT_DAYS)} días, contra {fmt(earlier_rate)} por día antes. "
+        f"Son {fmt(times)} veces más."))
