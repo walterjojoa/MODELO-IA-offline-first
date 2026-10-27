@@ -202,3 +202,10 @@ def test_the_projected_quantity_uses_the_daily_rate():
     assert projection.deaths_per_day == pytest.approx(1.0, abs=0.05)
     assert projection.current_quantity == 950
     assert projection.projected_quantity == pytest.approx(920, abs=2)
+
+
+def test_more_deaths_than_stocked_is_reported_as_inconsistent_data():
+    projection = project(Batch(STOCKED, 100), deaths=[Death(START + timedelta(days=5), 150)],
+                         temperatures=temperatures(13.0, 30), now=START + timedelta(days=30))
+    assert projection.current_quantity == 0
+    assert any("pasan la cantidad sembrada" in n for n in projection.notes)
