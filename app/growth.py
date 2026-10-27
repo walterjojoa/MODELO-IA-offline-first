@@ -163,3 +163,31 @@ def mean_temperature(temperatures: list[Temperature], start: datetime, end: date
     """
     inside = [t.celsius for t in temperatures if start <= t.at <= end]
     return median(inside) if inside else None
+
+
+def fit_tgc(weighings: list[Weighing],
+            temperatures: list[Temperature]) -> tuple[float | None, int]:
+    """
+    This farm's coefficient, from whatever weighings it has.
+
+    With more than two, the coefficient of each consecutive pair is worked out and the median taken,
+    which is what stops one weighing with a bad sample from defining the whole batch's growth.
+
+    Returns (coefficient, how many pairs could be used).
+    """
+    coefficients = []
+    for before, after in zip(weighings, weighings[1:]):
+        days = _days(before.at, after.at)
+        if days < MIN_DAYS_BETWEEN_WEIGHINGS:
+            continue
+        if before.average_g <= 0 or after.average_g <= 0:
+            continue
+        temperature = mean_temperature(temperatures, before.at, after.at)
+        if temperature is None or temperature <= 0:
+            continue
+        growth = after.average_g ** (1 / 3) - before.average_g ** (1 / 3)
+        coefficients.append(1000.0 * growth / (temperature * days))
+
+    if not coefficients:
+        return None, 0
+    return median(coefficients), len(coefficients)
