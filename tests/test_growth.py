@@ -117,3 +117,9 @@ def test_it_says_how_many_days_to_market_weight():
 
     # Checked independently: the weight projected to those days has to give the target
     assert grown(50.0, projection.tgc, 13.0, projection.days_to_target) == pytest.approx(250.0, rel=0.02)
+
+
+def test_already_past_the_target_means_zero_days():
+    projection = project(Batch(STOCKED, 10000), weighings=[Weighing(START, 300.0)],
+                         temperatures=temperatures(13.0, 1), target_weight_g=250.0, now=START)
+    assert projection.days_to_target == 0
