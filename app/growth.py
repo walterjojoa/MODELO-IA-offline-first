@@ -73,3 +73,8 @@ MIN_EARLIER_DAYS = 7.0
 """Some history before the window is needed to have anything to compare against."""
 
 ACCELERATION_FACTOR = 2.0
+MIN_RECENT_DEATHS = 5
+"""
+Both are needed. Without the absolute floor, going from one death to three is a "tripling" that
+means nothing.
+"""
