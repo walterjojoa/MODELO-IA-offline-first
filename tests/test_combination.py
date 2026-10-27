@@ -144,3 +144,11 @@ def test_an_incomplete_reading_gives_no_answer():
     history = coupled()
     readings = with_newest(history, temp_c=12.3)  # no pH
     assert evaluate(readings) is None
+
+
+def test_history_rows_missing_a_variable_are_left_out():
+    history = coupled()
+    for row in history[:30]:
+        row.pop("ph")
+    # Only ten complete rows are left, below the minimum
+    assert evaluate(with_newest(history, temp_c=12.2, ph=7.52)) is None
