@@ -50,3 +50,7 @@ def test_solve_returns_the_answer_of_a_small_system():
     assert answer is not None
     assert round(4 * answer[0] + answer[1], 9) == 1.0
     assert round(answer[0] + 3 * answer[1], 9) == 2.0
+
+
+def test_solve_says_no_on_a_singular_system():
+    assert solve([[1.0, 2.0], [2.0, 4.0]], [1.0, 2.0]) is None
