@@ -82,3 +82,5 @@ means nothing.
 EXPECTED_SURVIVAL_PCT = 80.0
 """What a well-run batch of fry is expected to reach. Same standing as the reference TGC: it
 orients, it does not validate."""
+
+SECONDS_PER_DAY = 86400.0
