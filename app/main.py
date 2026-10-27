@@ -171,3 +171,9 @@ def combinations(request: AnalysisRequest) -> CombinationResponse | None:
         return None
     return CombinationResponse(variables=list(found.variables), valores=list(found.values),
                                distancia=found.distance, corte=found.cutoff, mensaje=found.message)
+
+
+class WeighingInput(BaseModel):
+    registrado_en: datetime
+    peso_promedio_g: float
+    muestra: int | None = None
