@@ -129,6 +129,58 @@ que todavía no hay historia para saberlo (hacen falta 20 lecturas completas). S
 lecturas que traen **todas** las variables: rellenar un hueco con el promedio de la columna
 inventaría una combinación que nadie midió, y la combinación es justo lo que aquí se juzga.
 
+## Proyección del lote
+
+Esto **no** es un modelo aprendido, y decirlo así importa más de lo que suena: es un modelo de
+crecimiento de la literatura al que se le ajusta un parámetro con los datos de la finca. En una
+sustentación, la diferencia entre "entrenamos un modelo" y "ajustamos un modelo conocido a esta
+finca" es la diferencia entre una afirmación y una medición.
+
+Se usa el **coeficiente térmico de crecimiento** (Iwama y Tautz, 1981), que descansa en un hecho de
+la trucha: no crece con el tiempo, crece con el calor acumulado.
+
+```
+W2^(1/3) = W1^(1/3) + (TGC / 1000) · T · días
+```
+
+Despejando, dos biometrías y la temperatura entre ellas dan el coeficiente de *esta* finca. El valor
+de la literatura sirve para arrancar; a la segunda biometría el modelo ya habla del estanque real.
+La Cocha está a 2.760 m y el agua es fría, así que es de esperar que el ajustado salga por debajo del
+de referencia, y que eso se pueda medir es en sí un resultado. Con más de dos biometrías se toma la
+**mediana** de los pares, que es lo que impide que un pesaje con mala muestra defina el lote.
+
+Se empareja con `forecast.py`: el pronóstico dice qué tan tibia va a estar el agua, y esto dice
+cuánto vale esa tibieza en gramos.
+
+```
+POST /proyeccion-lote          (cabecera X-API-Key)
+{"fecha_siembra": "2026-06-01", "cantidad_inicial": 10000, "biometrias": [...],
+ "mortalidades": [...], "lecturas": [...], "dias_adelante": 30, "peso_objetivo_g": 250}
+-> {"tgc": 1.78, "tgc_ajustado": true, "peso_actual_g": 28.0, "peso_proyectado_g": 50.6,
+    "dias_para_objetivo": 148, "fecha_objetivo": "2027-03-24", "supervivencia_pct": 93.0,
+    "hallazgos": [...], "notas": [...]}
+```
+
+### Dos cosas que este módulo no sabe, y las dice
+
+**La supervivencia es un techo, no una medición.** Sale de las mortalidades *registradas*, y un
+alevino que muere y se descompone nunca se registra. La medición de verdad es el contador: comparar
+lo que entrega al cosechar contra lo que se sembró es lo único que cierra la cuenta. Que el sistema
+tenga las dos cosas y se puedan contrastar es justo lo que la tesis mide, y por eso el techo se
+reporta como techo.
+
+**Lo que no se puede calcular va en `notas`, no como cero.** Un peso proyectado de 0 g y un peso
+proyectado desconocido no son lo mismo, y quien lea la pantalla tiene que notar la diferencia. Un
+lote sin biometrías ni temperatura no recibe un pronóstico inventado: recibe qué falta registrar.
+
+Además del peso, busca dos cosas en los números del lote. Que **crezca muy por debajo de lo que el
+agua permite** es el hallazgo más útil: descarta la temperatura y apunta a ración, densidad o
+sanidad, que es lo que el cuidador puede cambiar. Y que la **mortalidad se haya acelerado**, mirando
+la última semana contra todo lo anterior. "Reciente" es una semana fija y no una fracción de la vida
+del lote, porque un brote mata en cuatro o cinco días: medido sobre el mismo lote de prueba, el
+último tercio daba 2.6 veces la tasa anterior y la semana da 9.5, que es lo que de verdad pasa. Un
+lote puede llevar 95 % de supervivencia acumulada y estar en plena mortandad esta semana.
+
 ## Correr en local
 
 ```
