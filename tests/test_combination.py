@@ -134,3 +134,13 @@ def test_a_single_variable_is_not_a_combination():
     history = [{"registrado_en": START + timedelta(hours=6 * i), "temp_c": 12.0 + i * 0.05}
                for i in range(30)]
     assert evaluate(with_newest(history, temp_c=18.0)) is None
+
+
+def test_an_incomplete_reading_gives_no_answer():
+    """
+    Filling the gap with the column's average would invent a combination nobody measured, and the
+    combination is the whole point. No answer is the honest outcome.
+    """
+    history = coupled()
+    readings = with_newest(history, temp_c=12.3)  # no pH
+    assert evaluate(readings) is None
