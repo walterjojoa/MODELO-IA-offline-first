@@ -123,3 +123,17 @@ def test_already_past_the_target_means_zero_days():
     projection = project(Batch(STOCKED, 10000), weighings=[Weighing(START, 300.0)],
                          temperatures=temperatures(13.0, 1), target_weight_g=250.0, now=START)
     assert projection.days_to_target == 0
+
+
+# ---------- growth that is going badly ----------
+
+def test_a_batch_losing_weight_is_urgent_and_is_not_projected():
+    weighings = [Weighing(START, 40.0), Weighing(START + timedelta(days=30), 36.0)]
+    projection = project(Batch(STOCKED, 10000), weighings=weighings,
+                         temperatures=temperatures(13.0, 30), now=START + timedelta(days=30))
+    found = of_kind(projection, "crecimiento")
+    assert len(found) == 1 and found[0].urgent
+    assert "no está creciendo" in found[0].message
+    # Projecting with a negative coefficient would give a weight falling to zero: it is not done
+    assert projection.projected_weight_g is None
+    assert any("sin sentido" in n for n in projection.notes)
