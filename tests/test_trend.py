@@ -158,3 +158,12 @@ def test_about_to_cross_is_urgent():
     trend = check("oxigeno_mg_l", points, critical_min=5.0)
     assert trend is not None and trend.urgent
     assert "mañana" in trend.message
+
+
+def test_a_far_away_limit_is_reported_without_a_date():
+    # 0.05 a day from 8.6: the critical limit is more than seventy days off
+    trend = check("oxigeno_mg_l", falling(per_day=0.05, days=6.0), critical_min=5.0)
+    assert trend is not None
+    assert trend.days_to_limit is None
+    assert not trend.urgent
+    assert "límite" not in trend.message
