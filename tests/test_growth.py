@@ -75,3 +75,11 @@ def test_a_single_weighing_uses_the_reference_and_says_so():
     assert projection.tgc == REFERENCE_TGC
     assert any("referencia" in n for n in projection.notes)
     assert any("segunda biometría" in n for n in projection.notes)
+
+
+def test_two_weighings_too_close_together_cannot_fit():
+    weighings = [Weighing(START, 20.0), Weighing(START + timedelta(days=5), 22.0)]
+    projection = project(Batch(STOCKED, 10000), weighings=weighings,
+                         temperatures=temperatures(13.0, 5), now=START + timedelta(days=5))
+    assert not projection.tgc_fitted
+    assert any("demasiado juntas" in n for n in projection.notes)
