@@ -216,3 +216,20 @@ def test_without_the_stocked_quantity_survival_is_not_worked_out():
                          temperatures=temperatures(13.0, 10), now=START + timedelta(days=10))
     assert projection.survival_pct is None
     assert any("cantidad sembrada" in n for n in projection.notes)
+
+
+# ---------- the die-off the running total hides ----------
+
+def test_the_acceleration_shows_even_while_survival_still_looks_good():
+    """
+    What the cumulative percentage does not say. The batch is carrying 95 % survival, which is
+    excellent, and this week it is dying ten times faster than before. The total hides it.
+    """
+    deaths = [Death(START + timedelta(days=i), 1) for i in range(1, 41)]
+    deaths += [Death(START + timedelta(days=i), 10) for i in range(55, 60)]
+    projection = project(Batch(STOCKED, 2000), deaths=deaths,
+                         temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
+
+    assert projection.survival_pct > 90.0, "the cumulative figure looks fine"
+    accelerated = [f for f in of_kind(projection, "mortalidad") if "aceleró" in f.message]
+    assert len(accelerated) == 1 and accelerated[0].urgent
