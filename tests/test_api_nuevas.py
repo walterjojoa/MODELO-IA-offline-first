@@ -76,3 +76,7 @@ def test_too_little_history_is_a_valid_empty_answer_and_not_an_error():
 
 def test_tendencias_needs_the_key():
     assert client.post("/tendencias", json={"lecturas": falling()}).status_code == 401
+
+
+def test_tendencias_rejects_an_empty_list():
+    assert client.post("/tendencias", json={"lecturas": []}, headers=KEY).status_code == 422
