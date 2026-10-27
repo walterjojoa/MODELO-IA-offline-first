@@ -233,3 +233,11 @@ def test_the_acceleration_shows_even_while_survival_still_looks_good():
     assert projection.survival_pct > 90.0, "the cumulative figure looks fine"
     accelerated = [f for f in of_kind(projection, "mortalidad") if "aceleró" in f.message]
     assert len(accelerated) == 1 and accelerated[0].urgent
+
+
+def test_two_extra_deaths_are_not_an_acceleration():
+    """Without the absolute floor, going from one death to three would be a "tripling"."""
+    deaths = [Death(START + timedelta(days=5), 1), Death(START + timedelta(days=50), 3)]
+    projection = project(Batch(STOCKED, 2000), deaths=deaths,
+                         temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
+    assert [f for f in of_kind(projection, "mortalidad") if "aceleró" in f.message] == []
