@@ -139,3 +139,40 @@ def in_sentence(label: str) -> str:
     message less. A label with capitals after the first letter is left exactly as it is.
     """
     return label.lower() if label[1:].islower() else label
+
+
+def evaluate(readings: list[dict]) -> Combination | None:
+    """
+    Judges the newest reading against the shape of the ones before it.
+
+    Only readings carrying *every* variable count, and that is deliberate: filling a gap with the
+    column's average would invent a combination nobody measured, and the combination is the whole
+    point here. A pond where the caretaker measures temperature daily and oxygen weekly simply gets
+    no answer from this module, which is the honest outcome.
+    """
+    readings = sorted(readings, key=lambda r: r["registrado_en"])
+    *previous, newest = readings
+
+    columns = tuple(v for v in VARIABLES if newest.get(v) is not None)
+    if len(columns) < 2:
+        return None
+    cloud = [[r[v] for v in columns] for r in previous
+             if all(r.get(v) is not None for v in columns)]
+    if len(cloud) < MIN_HISTORY:
+        return None
+
+    point = [newest[v] for v in columns]
+    far = distance(point, cloud, [VARIABLES[v].resolution for v in columns])
+    if far is None:
+        return None
+    limit = cutoff_for(len(columns))
+    if far <= limit:
+        return None
+
+    described = ", ".join(f"{in_sentence(VARIABLES[v].label)} {fmt(value)}{VARIABLES[v].unit}"
+                          for v, value in zip(columns, point))
+    return Combination(
+        columns, tuple(point), round(far, 2), limit,
+        f"Esta combinación no se había visto en el estanque: {described}. "
+        f"Cada valor por separado puede estar en lo normal; juntos, no se parecen a nada "
+        f"de lo medido antes.")
