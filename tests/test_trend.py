@@ -14,3 +14,9 @@ TEMPERATURE = {"critico_min": 6.0, "critico_max": 18.0}
 def series(values, hours=6.0, start=START):
     """(time, value) pairs, one every `hours`."""
     return [(start + timedelta(hours=hours * i), v) for i, v in enumerate(values)]
+
+
+def falling(per_day, days=6.0, n=24, start=8.6):
+    """A value dropping steadily, sampled evenly over `days`."""
+    step = days * 24 / (n - 1)
+    return [(START + timedelta(hours=step * i), start - per_day * (step * i) / 24) for i in range(n)]
