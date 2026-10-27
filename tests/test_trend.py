@@ -198,3 +198,10 @@ def test_evaluate_looks_at_every_variable_and_skips_missing_values():
                          "temp_c": 12.0 if i % 2 else None, "ph": None})
     found = evaluate(readings, {"oxigeno_mg_l": OXYGEN, "temp_c": TEMPERATURE})
     assert [t.variable for t in found] == ["oxigeno_mg_l"]
+
+
+def test_evaluate_works_without_ranges():
+    readings = [{"registrado_en": when, "oxigeno_mg_l": value}
+                for when, value in falling(per_day=0.4, days=6.0)]
+    found = evaluate(readings)
+    assert len(found) == 1 and found[0].days_to_limit is None
