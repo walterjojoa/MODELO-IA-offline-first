@@ -84,3 +84,7 @@ def test_without_a_floor_a_degenerate_cloud_gives_no_answer():
     """
     column = [9.0 + i * 0.05 for i in range(20)]
     assert distance([9.5, 9.5], [[x, x] for x in column]) is None
+
+
+def test_a_pond_that_never_moved_gives_no_answer():
+    assert distance([12.0, 7.0], [[12.0, 7.0]] * 30) is None
