@@ -128,3 +128,14 @@ def distance(point: list[float], cloud: list[list[float]],
 
 def cutoff_for(columns: int) -> float:
     return CUTOFF.get(columns, CUTOFF[3])
+
+
+def in_sentence(label: str) -> str:
+    """
+    A variable's label in the middle of a sentence: "Temperatura" -> "temperatura", "pH" -> "pH".
+
+    Lowercasing the lot would read "ph", and pH is chemical notation rather than a word — written
+    in lower case it is simply wrong, and it is the kind of detail that makes a caretaker trust the
+    message less. A label with capitals after the first letter is left exactly as it is.
+    """
+    return label.lower() if label[1:].islower() else label
