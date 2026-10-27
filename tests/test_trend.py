@@ -9,3 +9,8 @@ START = datetime(2026, 10, 1, 6, tzinfo=timezone.utc)
 
 OXYGEN = {"critico_min": 5.0, "critico_max": None}
 TEMPERATURE = {"critico_min": 6.0, "critico_max": 18.0}
+
+
+def series(values, hours=6.0, start=START):
+    """(time, value) pairs, one every `hours`."""
+    return [(start + timedelta(hours=hours * i), v) for i, v in enumerate(values)]
