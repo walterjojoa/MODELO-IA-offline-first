@@ -68,3 +68,10 @@ HORIZON_DAYS = 7
 
 URGENT_DAYS = 2
 """Closer than this and it stops being something to watch and becomes something to do today."""
+
+MAX_READINGS = 300
+"""
+Theil-Sen compares every pair, so the work grows with the square: 300 readings are 45 000 pairs and
+resolve instantly, 5 000 would be 12 million and leave the backend waiting. The most recent ones are
+the ones that matter.
+"""
