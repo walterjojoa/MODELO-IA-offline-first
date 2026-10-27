@@ -8,3 +8,8 @@ from app.growth import (MIN_DAYS_BETWEEN_WEIGHINGS, POOR_GROWTH_FRACTION, REFERE
 UTC = timezone.utc
 STOCKED = date(2026, 6, 1)
 START = datetime(2026, 6, 1, 6, tzinfo=UTC)
+
+
+def temperatures(celsius, days, every=1.0):
+    return [Temperature(START + timedelta(days=every * i), celsius)
+            for i in range(int(days / every) + 1)]
