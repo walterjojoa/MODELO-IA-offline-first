@@ -122,3 +122,13 @@ def test_one_day_of_the_daily_cycle_would_invent_a_trend():
     days = [(when - START).total_seconds() / 86400 for when, _ in points]
     _, agreement = slope(days, [v for _, v in points])
     assert agreement > MIN_AGREEMENT
+
+
+def test_three_days_of_the_daily_cycle_report_nothing():
+    points = daily_cycle(days=MIN_DAYS)
+    # It has to be silent because the cycles cancelled out, not because the window was too short
+    assert (points[-1][0] - points[0][0]).total_seconds() / 86400 >= MIN_DAYS
+    days = [(when - START).total_seconds() / 86400 for when, _ in points]
+    _, agreement = slope(days, [v for _, v in points])
+    assert agreement < MIN_AGREEMENT
+    assert check("ph", points, critical_min=6.0, critical_max=9.0) is None
