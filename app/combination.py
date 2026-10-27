@@ -124,3 +124,7 @@ def distance(point: list[float], cloud: list[list[float]],
     squared = sum(d * w for d, w in zip(delta, weighted))
     # A negative only comes from rounding when the point sits almost on the centre
     return max(squared, 0.0) ** 0.5
+
+
+def cutoff_for(columns: int) -> float:
+    return CUTOFF.get(columns, CUTOFF[3])
