@@ -34,3 +34,6 @@ def falling(per_day=0.4, days=6.0, n=24, start=8.6):
     step = days * 24 / (n - 1)
     return [{"registrado_en": (START + timedelta(hours=step * i)).isoformat(),
              "oxigeno_mg_l": round(start - per_day * (step * i) / 24, 3)} for i in range(n)]
+
+
+OXYGEN_RANGE = {"variable": "oxigeno_mg_l", "critico_min": 5.0, "critico_max": None}
