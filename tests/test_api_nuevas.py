@@ -94,3 +94,13 @@ def coupled(n=40, extra=None):
     if extra:
         rows.append({"registrado_en": (START + timedelta(hours=6 * n)).isoformat(), **extra})
     return rows
+
+
+def test_a_combination_never_seen_comes_back_with_its_distance():
+    body = {"lecturas": coupled(extra={"temp_c": 12.2, "ph": 7.52})}
+    response = client.post("/combinaciones", json=body, headers=KEY)
+    assert response.status_code == 200
+    found = response.json()
+    assert found["variables"] == ["temp_c", "ph"]
+    assert found["distancia"] > found["corte"]
+    assert "no se había visto" in found["mensaje"]
