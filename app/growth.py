@@ -142,3 +142,8 @@ class Projection:
     # --- the rest ---
     findings: list[Finding] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+
+
+def fmt(x: float) -> str:
+    """19.0 -> "19", 6.25 -> "6.25", like the rest of the service's messages."""
+    return f"{round(x, 2):g}"
