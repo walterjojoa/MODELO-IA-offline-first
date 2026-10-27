@@ -72,3 +72,7 @@ def test_the_ranges_are_optional_and_then_there_is_no_date():
 def test_too_little_history_is_a_valid_empty_answer_and_not_an_error():
     response = client.post("/tendencias", json={"lecturas": readings([9.0, 8.5, 8.0])}, headers=KEY)
     assert response.status_code == 200 and response.json() == []
+
+
+def test_tendencias_needs_the_key():
+    assert client.post("/tendencias", json={"lecturas": falling()}).status_code == 401
