@@ -64,3 +64,11 @@ of freedom. One in a hundred normal readings crosses it by chance.
 
 Written down rather than computed so the service does not have to carry scipy for three numbers.
 """
+
+@dataclass(frozen=True)
+class Combination:
+    variables: tuple[str, ...]
+    values: tuple[float, ...]
+    distance: float
+    cutoff: float
+    message: str
