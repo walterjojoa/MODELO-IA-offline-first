@@ -28,3 +28,9 @@ def key(monkeypatch):
 def readings(values, hours=6.0, variable="oxigeno_mg_l"):
     return [{"registrado_en": (START + timedelta(hours=hours * i)).isoformat(), variable: v}
             for i, v in enumerate(values)]
+
+
+def falling(per_day=0.4, days=6.0, n=24, start=8.6):
+    step = days * 24 / (n - 1)
+    return [{"registrado_en": (START + timedelta(hours=step * i)).isoformat(),
+             "oxigeno_mg_l": round(start - per_day * (step * i) / 24, 3)} for i in range(n)]
