@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.error import URLError
 
 from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 from app import anomalies, forecast, open_meteo
@@ -42,6 +43,12 @@ class AnomalyResponse(BaseModel):
     esperado: float
     puntaje: float
     mensaje: str
+
+
+@app.get("/", include_in_schema=False)
+def home() -> RedirectResponse:
+    # Opening the bare address in a browser showed {"detail":"Not Found"}, which looked like a broken deploy
+    return RedirectResponse("/docs")
 
 
 @app.get("/salud")

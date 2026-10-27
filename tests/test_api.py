@@ -106,3 +106,8 @@ def test_forecast_when_weather_service_is_down_is_503(monkeypatch):
 
 def test_forecast_needs_key():
     assert client.post("/pronostico-temperatura", json={"lecturas": []}).status_code == 401
+
+
+def test_home_leads_to_docs():
+    response = client.get("/", follow_redirects=False)
+    assert response.status_code == 307 and response.headers["location"] == "/docs"
