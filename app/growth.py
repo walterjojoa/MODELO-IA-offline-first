@@ -307,3 +307,44 @@ def _project_growth(batch, weighings, temperatures, days_ahead, target, now, fin
         "days_to_target": days_to_target,
         "target_date": target_date,
     }
+
+
+def _project_survival(batch, deaths, days_ahead, now, findings, notes) -> dict:
+    empty = {"current_quantity": None, "projected_quantity": None,
+             "survival_pct": None, "deaths_per_day": None}
+
+    if not batch.stocked_quantity or batch.stocked_quantity <= 0:
+        notes.append("Sin la cantidad sembrada no se puede calcular supervivencia.")
+        return empty
+    if not batch.stocked_on:
+        notes.append("Sin la fecha de siembra no se puede calcular una tasa de mortalidad por día.")
+        return empty
+
+    total = sum(d.quantity for d in deaths)
+    alive = max(batch.stocked_quantity - total, 0)
+    stocked = datetime.combine(batch.stocked_on, datetime.min.time(), tzinfo=now.tzinfo)
+    elapsed = max(_days(stocked, now), 1.0)
+    per_day = total / elapsed
+
+    if total > batch.stocked_quantity:
+        # Not an arithmetic error: an inconsistency in the data, and it has to be said
+        notes.append(f"Las mortalidades registradas ({total}) pasan la cantidad sembrada "
+                     f"({batch.stocked_quantity}). Hay registros de más o una siembra mal anotada.")
+
+    survival = 100.0 * alive / batch.stocked_quantity
+    if survival < EXPECTED_SURVIVAL_PCT:
+        findings.append(Finding(
+            "mortalidad", False, round(survival, 1),
+            f"Van {total} muertes registradas de {batch.stocked_quantity} sembrados: "
+            f"{fmt(survival)}% de supervivencia, por debajo del {fmt(EXPECTED_SURVIVAL_PCT)}% que "
+            f"se espera de un lote bien llevado. Y es un techo: lo que no se alcanzó a registrar "
+            f"no está contado."))
+
+    _check_acceleration(deaths, stocked, now, findings)
+
+    return {
+        "current_quantity": alive,
+        "projected_quantity": max(alive - int(round(per_day * days_ahead)), 0),
+        "survival_pct": round(survival, 1),
+        "deaths_per_day": round(per_day, 2),
+    }
