@@ -118,3 +118,7 @@ def test_cold_water_with_high_ph_is_caught_while_each_value_passes():
 def test_a_reading_that_follows_the_pattern_passes():
     # Warm water with high pH: exactly what this pond does every day at noon
     assert evaluate(with_newest(coupled(), temp_c=16.9, ph=7.54)) is None
+
+
+def test_a_reading_in_the_middle_of_the_pattern_passes():
+    assert evaluate(with_newest(coupled(), temp_c=14.5, ph=7.2)) is None
