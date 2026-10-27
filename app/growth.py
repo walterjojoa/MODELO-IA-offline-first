@@ -206,3 +206,26 @@ def days_until(weight_g: float, target_g: float, tgc: float, celsius: float) -> 
     if tgc <= 0 or celsius <= 0:
         return None
     return 1000.0 * (target_g ** (1 / 3) - weight_g ** (1 / 3)) / (tgc * celsius)
+
+
+def project(batch: Batch,
+            weighings: list[Weighing] | None = None,
+            deaths: list[Death] | None = None,
+            temperatures: list[Temperature] | None = None,
+            days_ahead: int = 30,
+            target_weight_g: float | None = None,
+            now: datetime | None = None) -> Projection:
+    """What can be said about this batch with what it has recorded."""
+    weighings = sorted(weighings or [], key=lambda w: w.at)
+    deaths = sorted(deaths or [], key=lambda d: d.at)
+    temperatures = sorted(temperatures or [], key=lambda t: t.at)
+    if now is None:
+        reference = weighings or deaths or temperatures
+        now = max(item.at for item in reference) if reference else datetime.now(tz=None)
+
+    findings: list[Finding] = []
+    notes: list[str] = []
+    growth = _project_growth(batch, weighings, temperatures, days_ahead, target_weight_g,
+                             now, findings, notes)
+    survival = _project_survival(batch, deaths, days_ahead, now, findings, notes)
+    return Projection(days_ahead=days_ahead, findings=findings, notes=notes, **growth, **survival)
