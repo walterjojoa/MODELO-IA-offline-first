@@ -65,3 +65,11 @@ def test_distance_of_the_centre_is_about_zero():
 
 def test_distance_needs_more_rows_than_variables():
     assert distance([12.0, 7.0, 9.0], [[12.0, 7.0, 9.0], [13.0, 7.1, 8.9], [12.5, 7.05, 9.1]]) is None
+
+
+def test_distance_survives_two_variables_that_move_identically():
+    # No inverse without a floor on the diagonal, and the whole thing would raise instead of answer
+    column = [9.0 + i * 0.05 for i in range(20)]
+    cloud = [[x, x] for x in column]
+    far = distance([9.5, 9.5], cloud, FLOORS)
+    assert far is not None and far == far  # not NaN
