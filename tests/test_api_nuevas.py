@@ -60,3 +60,10 @@ def test_a_flat_pond_comes_back_empty():
     response = client.post("/tendencias", json={"lecturas": flat, "rangos": [OXYGEN_RANGE]},
                            headers=KEY)
     assert response.status_code == 200 and response.json() == []
+
+
+def test_the_ranges_are_optional_and_then_there_is_no_date():
+    response = client.post("/tendencias", json={"lecturas": falling()}, headers=KEY)
+    [found] = response.json()
+    assert found["dias_al_limite"] is None
+    assert found["limite"] is None
