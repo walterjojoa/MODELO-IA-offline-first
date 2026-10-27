@@ -137,3 +137,21 @@ def test_a_batch_losing_weight_is_urgent_and_is_not_projected():
     # Projecting with a negative coefficient would give a weight falling to zero: it is not done
     assert projection.projected_weight_g is None
     assert any("sin sentido" in n for n in projection.notes)
+
+
+def test_growing_far_below_what_the_water_allows_says_where_to_look():
+    """
+    The most useful finding here: the water is fine and the fish still are not growing. That rules
+    out temperature and points at ration, density or health, which is what the caretaker can change.
+    """
+    days = 60
+    slow = REFERENCE_TGC * 0.5
+    weighings = [Weighing(START, 20.0),
+                 Weighing(START + timedelta(days=days), grown(20.0, slow, 14.0, days))]
+    projection = project(Batch(STOCKED, 10000), weighings=weighings,
+                         temperatures=temperatures(14.0, days), now=START + timedelta(days=days))
+    found = of_kind(projection, "crecimiento")
+    assert len(found) == 1 and not found[0].urgent
+    assert "ración" in found[0].message
+    # And it keeps projecting: the batch is growing, just badly
+    assert projection.projected_weight_g > projection.current_weight_g
