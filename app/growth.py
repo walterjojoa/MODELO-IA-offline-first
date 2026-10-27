@@ -1,0 +1,42 @@
+"""Where a batch is heading: what it will weigh, when it reaches market weight, how many will be left.
+
+This one is not a learned model, and saying so plainly matters more than it sounds: it is a growth
+model from the literature whose parameter is fitted with the farm's own data. In a defence, the
+difference between "we trained a model" and "we fitted a known model to this farm" is the difference
+between a claim and a measurement.
+
+## The model
+
+The thermal growth coefficient (Iwama & Tautz, 1981), the standard in fish farming, resting on a
+fact about trout: they do not grow with time, they grow with accumulated *heat*. A month at 14 °C is
+worth more than a month at 9 °C, and the arithmetic says it:
+
+    W2^(1/3) = W1^(1/3) + (TGC / 1000) * T * days
+
+with weight in grams and T in degrees. Rearranged, it gives the coefficient of *this* farm from two
+weighings and the temperature between them. That is what makes it useful here: the number from the
+literature gets it started, and by the second biometry the model is talking about the real pond
+rather than an average trout from somewhere else.
+
+La Cocha sits at 2,760 m and the water is cold, so the fitted coefficient is expected to come out
+below the reference. That it can be measured at all is, in itself, a result.
+
+It pairs with forecast.py, which predicts the water temperature for the coming days: the forecast
+says how warm the water will be, and this says what that warmth is worth in grams.
+
+## What cannot be known, and is said instead of hidden
+
+Survival is worked out from the *recorded* mortalities, and that has a limit worth writing down: a
+fry that dies and decomposes, or that a bird takes, is never recorded. So the survival that comes
+out of here is a **ceiling**, not a measurement. The real measurement is the fry counter: comparing
+what it delivers at harvest against what was stocked is the only thing that closes the account. That
+the system has both and they can be contrasted is exactly what the thesis sets out to measure, which
+is why the ceiling is reported as a ceiling instead of dressed up as a figure.
+
+Whatever cannot be worked out is not worked out, and `notes` says what is missing. A projection for
+a batch with no weighings and no temperatures would be a number invented with the face of a forecast.
+"""
+
+from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
+from statistics import median
