@@ -70,3 +70,8 @@ def test_least_squares_would_invert_the_sign_with_one_bad_reading():
 
     assert round(robust, 6) == -0.3
     assert least_squares > 0
+
+
+def test_slope_needs_two_distinct_times():
+    assert slope([3.0], [9.0]) is None
+    assert slope([3.0, 3.0], [9.0, 8.0]) is None
