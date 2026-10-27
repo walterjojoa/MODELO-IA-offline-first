@@ -40,3 +40,10 @@ a batch with no weighings and no temperatures would be a number invented with th
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from statistics import median
+
+REFERENCE_TGC = 2.0
+"""
+Reference coefficient for rainbow trout, with the same warning the project already puts on the rule
+ranges, because it is just as true: a reference value without a citation, to be adjusted with the
+producer and cited from AUNAP/FAO before the pilot. It only rules until the batch has two weighings.
+"""
