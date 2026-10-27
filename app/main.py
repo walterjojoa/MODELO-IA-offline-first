@@ -177,3 +177,8 @@ class WeighingInput(BaseModel):
     registrado_en: datetime
     peso_promedio_g: float
     muestra: int | None = None
+
+
+class DeathInput(BaseModel):
+    registrado_en: datetime
+    cantidad: int
