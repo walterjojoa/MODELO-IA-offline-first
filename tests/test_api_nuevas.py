@@ -119,3 +119,7 @@ def test_without_enough_history_it_comes_back_null_and_not_an_error():
     body = {"lecturas": coupled(n=10, extra={"temp_c": 12.2, "ph": 7.52})}
     response = client.post("/combinaciones", json=body, headers=KEY)
     assert response.status_code == 200 and response.json() is None
+
+
+def test_combinaciones_needs_the_key():
+    assert client.post("/combinaciones", json={"lecturas": coupled()}).status_code == 401
