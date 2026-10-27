@@ -67,3 +67,8 @@ def test_the_ranges_are_optional_and_then_there_is_no_date():
     [found] = response.json()
     assert found["dias_al_limite"] is None
     assert found["limite"] is None
+
+
+def test_too_little_history_is_a_valid_empty_answer_and_not_an_error():
+    response = client.post("/tendencias", json={"lecturas": readings([9.0, 8.5, 8.0])}, headers=KEY)
+    assert response.status_code == 200 and response.json() == []
