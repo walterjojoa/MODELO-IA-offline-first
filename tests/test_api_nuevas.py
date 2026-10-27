@@ -202,3 +202,14 @@ def test_the_target_weight_cannot_be_negative():
 
 def test_proyeccion_needs_the_key():
     assert client.post("/proyeccion-lote", json=batch_body()).status_code == 401
+
+
+# ---------- the contract as a whole ----------
+
+def test_every_new_route_is_in_the_documentation():
+    paths = client.get("/openapi.json").json()["paths"]
+    for route in ("/tendencias", "/combinaciones", "/proyeccion-lote"):
+        assert route in paths, route
+    # And the ones that were already there keep working
+    for route in ("/anomalias", "/pronostico-temperatura", "/salud"):
+        assert route in paths, route
