@@ -180,3 +180,10 @@ def test_a_limit_already_crossed_is_the_rules_business():
     # Below the critical 5.0 already: level 1 is shouting about it, no date to add
     trend = check("oxigeno_mg_l", falling(per_day=0.4, days=6.0, start=6.5), critical_min=5.0)
     assert trend is not None and trend.days_to_limit is None
+
+
+def test_a_rise_heads_for_the_upper_limit():
+    rising = [(START + timedelta(hours=6 * i), 12.0 + 0.5 * i * 0.25) for i in range(24)]
+    trend = check("temp_c", rising, critical_min=6.0, critical_max=18.0)
+    assert trend is not None
+    assert trend.per_day > 0 and "subiendo" in trend.message
