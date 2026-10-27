@@ -61,3 +61,7 @@ def test_distance_of_the_centre_is_about_zero():
     centre = [cloud[15][0], cloud[15][1]]
     far = distance(centre, cloud, FLOORS)
     assert far is not None and far < 0.5
+
+
+def test_distance_needs_more_rows_than_variables():
+    assert distance([12.0, 7.0, 9.0], [[12.0, 7.0, 9.0], [13.0, 7.1, 8.9], [12.5, 7.05, 9.1]]) is None
