@@ -147,3 +147,11 @@ def trends(request: TrendRequest) -> list[TrendResponse]:
     return [TrendResponse(variable=t.variable, por_dia=t.per_day, acuerdo=t.agreement,
                           dias_cubiertos=t.days_covered, dias_al_limite=t.days_to_limit,
                           limite=t.limit, urgente=t.urgent, mensaje=t.message) for t in found]
+
+
+class CombinationResponse(BaseModel):
+    variables: list[str]
+    valores: list[float]
+    distancia: float
+    corte: float
+    mensaje: str
