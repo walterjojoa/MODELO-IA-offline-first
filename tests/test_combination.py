@@ -41,3 +41,12 @@ def with_newest(history, **values):
     newest = {"registrado_en": history[-1]["registrado_en"] + timedelta(hours=6)}
     newest.update(values)
     return history + [newest]
+
+
+# ---------- the arithmetic, since there is no numpy to lean on ----------
+
+def test_solve_returns_the_answer_of_a_small_system():
+    answer = solve([[4.0, 1.0], [1.0, 3.0]], [1.0, 2.0])
+    assert answer is not None
+    assert round(4 * answer[0] + answer[1], 9) == 1.0
+    assert round(answer[0] + 3 * answer[1], 9) == 2.0
