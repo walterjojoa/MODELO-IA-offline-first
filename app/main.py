@@ -201,3 +201,23 @@ class FindingResponse(BaseModel):
     urgente: bool
     puntaje: float
     mensaje: str
+
+
+class ProjectionResponse(BaseModel):
+    dias_adelante: int
+    tgc: float | None
+    tgc_ajustado: bool
+    """False means it is the reference from the literature, not this farm's."""
+    temp_media_c: float | None
+    peso_actual_g: float | None
+    peso_proyectado_g: float | None
+    dias_para_objetivo: int | None
+    fecha_objetivo: date | None
+    cantidad_actual: int | None
+    cantidad_proyectada: int | None
+    supervivencia_pct: float | None
+    """A ceiling, not a measurement: what was never recorded is not counted."""
+    muertes_por_dia: float | None
+    hallazgos: list[FindingResponse]
+    notas: list[str]
+    """What could not be worked out and what is missing to be able to. It stops a null reading as a zero."""
