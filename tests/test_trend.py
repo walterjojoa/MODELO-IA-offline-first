@@ -148,3 +148,13 @@ def test_a_window_shorter_than_three_days_reports_nothing():
 def test_too_few_readings_report_nothing():
     assert check("oxigeno_mg_l", falling(per_day=0.4, days=6.0, n=MIN_READINGS - 1),
                  critical_min=5.0) is None
+
+
+# ---------- how urgent it is ----------
+
+def test_about_to_cross_is_urgent():
+    # From 5.6 falling 0.4 a day: a day and a half from the critical 5.0
+    points = falling(per_day=0.4, days=6.0, start=8.0)
+    trend = check("oxigeno_mg_l", points, critical_min=5.0)
+    assert trend is not None and trend.urgent
+    assert "mañana" in trend.message
