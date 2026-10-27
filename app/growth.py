@@ -111,3 +111,12 @@ class Batch:
     stocked_on: date | None = None
     stocked_quantity: int | None = None
     stocked_weight_g: float | None = None
+
+
+@dataclass(frozen=True)
+class Finding:
+    kind: str
+    """crecimiento | mortalidad"""
+    urgent: bool
+    score: float
+    message: str
