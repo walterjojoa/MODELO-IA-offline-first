@@ -191,3 +191,9 @@ def fit_tgc(weighings: list[Weighing],
     if not coefficients:
         return None, 0
     return median(coefficients), len(coefficients)
+
+
+def weight_after(weight_g: float, tgc: float, celsius: float, days: float) -> float:
+    """The weight after that many days at that temperature. Never below zero."""
+    root = weight_g ** (1 / 3) + (tgc / 1000.0) * celsius * days
+    return max(root, 0.0) ** 3
