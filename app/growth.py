@@ -84,3 +84,11 @@ EXPECTED_SURVIVAL_PCT = 80.0
 orients, it does not validate."""
 
 SECONDS_PER_DAY = 86400.0
+
+
+@dataclass(frozen=True)
+class Weighing:
+    """A sample weighing. `sample` is how many fish were weighed, when it was recorded."""
+    at: datetime
+    average_g: float
+    sample: int | None = None
