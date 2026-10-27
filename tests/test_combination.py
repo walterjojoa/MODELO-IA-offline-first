@@ -54,3 +54,10 @@ def test_solve_returns_the_answer_of_a_small_system():
 
 def test_solve_says_no_on_a_singular_system():
     assert solve([[1.0, 2.0], [2.0, 4.0]], [1.0, 2.0]) is None
+
+
+def test_distance_of_the_centre_is_about_zero():
+    cloud = [[12.0 + i * 0.1, 7.0 + i * 0.01] for i in range(30)]
+    centre = [cloud[15][0], cloud[15][1]]
+    far = distance(centre, cloud, FLOORS)
+    assert far is not None and far < 0.5
