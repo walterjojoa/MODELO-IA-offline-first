@@ -248,3 +248,10 @@ def test_a_batch_that_starts_dying_out_of_nowhere_is_urgent():
                          temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
     found = [f for f in of_kind(projection, "mortalidad") if "Empezó algo" in f.message]
     assert len(found) == 1 and found[0].urgent
+
+
+def test_without_deaths_no_acceleration_is_invented():
+    projection = project(Batch(STOCKED, 2000), deaths=[],
+                         temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
+    assert projection.survival_pct == 100.0
+    assert of_kind(projection, "mortalidad") == []
