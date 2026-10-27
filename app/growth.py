@@ -98,3 +98,9 @@ class Weighing:
 class Death:
     at: datetime
     quantity: int
+
+
+@dataclass(frozen=True)
+class Temperature:
+    at: datetime
+    celsius: float
