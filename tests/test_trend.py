@@ -167,3 +167,10 @@ def test_a_far_away_limit_is_reported_without_a_date():
     assert trend.days_to_limit is None
     assert not trend.urgent
     assert "límite" not in trend.message
+
+
+def test_without_limits_the_slope_is_still_reported():
+    trend = check("oxigeno_mg_l", falling(per_day=0.4, days=6.0))
+    assert trend is not None
+    assert trend.days_to_limit is None
+    assert "bajando" in trend.message
