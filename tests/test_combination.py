@@ -128,3 +128,9 @@ def test_a_reading_in_the_middle_of_the_pattern_passes():
 
 def test_too_little_history_gives_no_answer():
     assert evaluate(with_newest(coupled(n=MIN_HISTORY - 1), temp_c=12.2, ph=7.52)) is None
+
+
+def test_a_single_variable_is_not_a_combination():
+    history = [{"registrado_en": START + timedelta(hours=6 * i), "temp_c": 12.0 + i * 0.05}
+               for i in range(30)]
+    assert evaluate(with_newest(history, temp_c=18.0)) is None
