@@ -155,3 +155,19 @@ class CombinationResponse(BaseModel):
     distancia: float
     corte: float
     mensaje: str
+
+
+@app.post("/combinaciones", dependencies=[Depends(require_key)])
+def combinations(request: AnalysisRequest) -> CombinationResponse | None:
+    """
+    Whether the newest reading is a combination this pond has never produced.
+
+    Null means there is nothing to report, which covers both "the reading follows the pattern" and
+    "there is not enough history to tell": the pond's own readings are the only reference, and
+    without twenty complete ones there is no shape to compare against.
+    """
+    found = combination.evaluate([r.model_dump() for r in request.lecturas])
+    if found is None:
+        return None
+    return CombinationResponse(variables=list(found.variables), valores=list(found.values),
+                               distancia=found.distance, corte=found.cutoff, mensaje=found.message)
