@@ -22,3 +22,18 @@ def grown(weight_g, tgc, celsius, days):
 
 def of_kind(projection, kind):
     return [f for f in projection.findings if f.kind == kind]
+
+
+# ---------- that the model is right ----------
+
+@pytest.mark.parametrize("tgc, celsius, days", [(2.0, 13.0, 60), (1.4, 11.0, 90), (2.4, 15.0, 45)])
+def test_fitting_recovers_the_coefficient_the_data_was_made_with(tgc, celsius, days):
+    """
+    The round trip. If the model were wrongly rearranged this would fail even though everything
+    else looked like it worked.
+    """
+    weighings = [Weighing(START, 5.0, 30),
+                 Weighing(START + timedelta(days=days), grown(5.0, tgc, celsius, days), 30)]
+    fitted, pairs = fit_tgc(weighings, temperatures(celsius, days))
+    assert fitted == pytest.approx(tgc, abs=0.01)
+    assert pairs == 1
