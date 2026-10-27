@@ -123,3 +123,25 @@ def test_without_enough_history_it_comes_back_null_and_not_an_error():
 
 def test_combinaciones_needs_the_key():
     assert client.post("/combinaciones", json={"lecturas": coupled()}).status_code == 401
+
+
+# ---------- /proyeccion-lote ----------
+
+def batch_body(**extra):
+    body = {
+        "fecha_siembra": "2026-06-01",
+        "cantidad_inicial": 10000,
+        "peso_inicial_g": 5.0,
+        "biometrias": [
+            {"registrado_en": "2026-06-01T06:00:00+00:00", "peso_promedio_g": 5.0, "muestra": 30},
+            {"registrado_en": "2026-07-31T06:00:00+00:00", "peso_promedio_g": 28.0, "muestra": 30},
+        ],
+        "mortalidades": [{"registrado_en": "2026-06-15T06:00:00+00:00", "cantidad": 300}],
+        "lecturas": [{"registrado_en": (datetime(2026, 6, 1, tzinfo=timezone.utc)
+                                        + timedelta(days=i)).isoformat(), "temp_c": 12.4}
+                     for i in range(61)],
+        "dias_adelante": 30,
+        "peso_objetivo_g": 250.0,
+    }
+    body.update(extra)
+    return body
