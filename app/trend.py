@@ -91,3 +91,20 @@ class Trend:
     limit: float | None
     urgent: bool
     message: str
+
+
+def slope(days: list[float], values: list[float]) -> tuple[float, float] | None:
+    """Theil-Sen slope and the agreement of the pairs. None with fewer than two distinct times."""
+    slopes = []
+    for i in range(len(days)):
+        for j in range(i + 1, len(days)):
+            run = days[j] - days[i]
+            if run != 0:
+                slopes.append((values[j] - values[i]) / run)
+    if not slopes:
+        return None
+    middle = median(slopes)
+    if middle == 0:
+        return 0.0, 0.0
+    agreeing = sum(1 for s in slopes if (s > 0) == (middle > 0))
+    return middle, agreeing / len(slopes)
