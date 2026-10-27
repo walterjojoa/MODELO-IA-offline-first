@@ -78,3 +78,7 @@ MIN_RECENT_DEATHS = 5
 Both are needed. Without the absolute floor, going from one death to three is a "tripling" that
 means nothing.
 """
+
+EXPECTED_SURVIVAL_PCT = 80.0
+"""What a well-run batch of fry is expected to reach. Same standing as the reference TGC: it
+orients, it does not validate."""
