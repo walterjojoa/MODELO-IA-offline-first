@@ -51,3 +51,9 @@ producer and cited from AUNAP/FAO before the pilot. It only rules until the batc
 MIN_DAYS_BETWEEN_WEIGHINGS = 7.0
 """Under a week the difference in weight is more sampling error than growth: weighing thirty fry out
 of ten thousand has a spread of its own, and in five days growth does not beat it."""
+
+POOR_GROWTH_FRACTION = 0.6
+"""
+Below this fraction of the reference the batch is deemed to be growing badly. Not a measured value:
+a criterion, named so the producer can move it once there are several cycles to compare against.
+"""
