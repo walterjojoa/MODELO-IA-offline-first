@@ -7,3 +7,5 @@ from app.anomalies import VARIABLES
 from app.combination import MIN_HISTORY, cutoff_for, distance, evaluate, solve
 
 FLOORS = [VARIABLES["temp_c"].resolution, VARIABLES["ph"].resolution]
+
+START = datetime(2026, 10, 1, 6, tzinfo=timezone.utc)
