@@ -120,3 +120,25 @@ class Finding:
     urgent: bool
     score: float
     message: str
+
+
+@dataclass(frozen=True)
+class Projection:
+    days_ahead: int
+    # --- growth ---
+    tgc: float | None = None
+    tgc_fitted: bool = False
+    """False means it is the reference value from the literature, not this farm's."""
+    mean_temp_c: float | None = None
+    current_weight_g: float | None = None
+    projected_weight_g: float | None = None
+    days_to_target: int | None = None
+    target_date: date | None = None
+    # --- survival: a ceiling, not a measurement (see the module docstring) ---
+    current_quantity: int | None = None
+    projected_quantity: int | None = None
+    survival_pct: float | None = None
+    deaths_per_day: float | None = None
+    # --- the rest ---
+    findings: list[Finding] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
