@@ -53,3 +53,6 @@ Estimating the shape of a cloud takes many more rows than the algebra's bare min
 than the number of variables. With fewer than this the covariance is mostly noise, and a cloud
 whose shape is noise calls anything unusual.
 """
+
+WINDOW = 200
+"""Only the recent ones: the relationship between the variables of a pond changes with the season."""
