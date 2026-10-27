@@ -132,3 +132,10 @@ def test_three_days_of_the_daily_cycle_report_nothing():
     _, agreement = slope(days, [v for _, v in points])
     assert agreement < MIN_AGREEMENT
     assert check("ph", points, critical_min=6.0, critical_max=9.0) is None
+
+
+def test_a_drift_hidden_under_the_daily_cycle_is_found():
+    # 0.25 units a day, which is little and would never cross a fixed threshold in time
+    points = daily_cycle(days=MIN_DAYS, drift_per_day=0.25, base=7.6)
+    trend = check("ph", points, critical_min=6.0, critical_max=9.0)
+    assert trend is not None and trend.per_day < 0
