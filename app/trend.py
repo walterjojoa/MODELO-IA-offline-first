@@ -108,3 +108,46 @@ def slope(days: list[float], values: list[float]) -> tuple[float, float] | None:
         return 0.0, 0.0
     agreeing = sum(1 for s in slopes if (s > 0) == (middle > 0))
     return middle, agreeing / len(slopes)
+
+
+def check(variable: str, series: list[tuple[datetime, float]],
+          critical_min: float | None = None, critical_max: float | None = None) -> Trend | None:
+    """series is (time, value), any order. The limits are the rules' critical range for the variable."""
+    if len(series) < MIN_READINGS:
+        return None
+    series = sorted(series, key=lambda point: point[0])[-MAX_READINGS:]
+    first = series[0][0]
+    days = [(when - first).total_seconds() / SECONDS_PER_DAY for when, _ in series]
+    values = [value for _, value in series]
+
+    covered = days[-1]
+    if covered < MIN_DAYS:
+        return None
+    found = slope(days, values)
+    if found is None:
+        return None
+    per_day, agreement = found
+    if per_day == 0 or agreement < MIN_AGREEMENT:
+        return None
+
+    v = VARIABLES[variable]
+    heading = "subiendo" if per_day > 0 else "bajando"
+    message = (f"{v.label} viene {heading} {fmt(abs(per_day))}{v.unit} por día "
+               f"({fmt(covered)} días de datos)")
+
+    limit = critical_max if per_day > 0 else critical_min
+    days_left = None
+    if limit is not None:
+        days_left = (limit - values[-1]) / per_day
+        # Already past it (the rules are shouting about that already), or too far to act on
+        if days_left <= 0 or days_left > HORIZON_DAYS:
+            days_left = None
+
+    if days_left is None:
+        return Trend(variable, round(per_day, 3), round(agreement, 2), round(covered, 1),
+                     None, limit, False, message + ".")
+
+    when = "mañana" if days_left < 1.5 else f"en {round(days_left)} días"
+    return Trend(variable, round(per_day, 3), round(agreement, 2), round(covered, 1),
+                 round(days_left, 1), limit, days_left <= URGENT_DAYS,
+                 f"{message}. A este ritmo llega al límite de {fmt(limit)}{v.unit} {when}.")
