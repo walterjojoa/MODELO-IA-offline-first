@@ -205,3 +205,8 @@ def test_evaluate_works_without_ranges():
                 for when, value in falling(per_day=0.4, days=6.0)]
     found = evaluate(readings)
     assert len(found) == 1 and found[0].days_to_limit is None
+
+
+def test_evaluate_on_a_healthy_pond_reports_nothing():
+    readings = [{"registrado_en": when, "ph": value} for when, value in daily_cycle(days=5)]
+    assert evaluate(readings, {"ph": {"critico_min": 6.0, "critico_max": 9.0}}) == []
