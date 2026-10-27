@@ -8,3 +8,4 @@ from app.trend import MIN_AGREEMENT, MIN_DAYS, MIN_READINGS, check, evaluate, sl
 START = datetime(2026, 10, 1, 6, tzinfo=timezone.utc)
 
 OXYGEN = {"critico_min": 5.0, "critico_max": None}
+TEMPERATURE = {"critico_min": 6.0, "critico_max": 18.0}
