@@ -197,3 +197,12 @@ def weight_after(weight_g: float, tgc: float, celsius: float, days: float) -> fl
     """The weight after that many days at that temperature. Never below zero."""
     root = weight_g ** (1 / 3) + (tgc / 1000.0) * celsius * days
     return max(root, 0.0) ** 3
+
+
+def days_until(weight_g: float, target_g: float, tgc: float, celsius: float) -> float | None:
+    """Days left to the target weight. None if it is already past, or will never get there."""
+    if target_g <= weight_g:
+        return 0.0
+    if tgc <= 0 or celsius <= 0:
+        return None
+    return 1000.0 * (target_g ** (1 / 3) - weight_g ** (1 / 3)) / (tgc * celsius)
