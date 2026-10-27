@@ -109,3 +109,13 @@ def test_a_combination_never_seen_comes_back_with_its_distance():
 def test_a_reading_that_follows_the_pattern_comes_back_null():
     body = {"lecturas": coupled(extra={"temp_c": 16.9, "ph": 7.54})}
     assert client.post("/combinaciones", json=body, headers=KEY).json() is None
+
+
+def test_without_enough_history_it_comes_back_null_and_not_an_error():
+    """
+    Null covers both "it follows the pattern" and "I cannot tell yet", and that is a limitation
+    worth knowing: the pond's own readings are the only reference there is.
+    """
+    body = {"lecturas": coupled(n=10, extra={"temp_c": 12.2, "ph": 7.52})}
+    response = client.post("/combinaciones", json=body, headers=KEY)
+    assert response.status_code == 200 and response.json() is None
