@@ -71,3 +71,5 @@ pond gets looked at in.
 
 MIN_EARLIER_DAYS = 7.0
 """Some history before the window is needed to have anything to compare against."""
+
+ACCELERATION_FACTOR = 2.0
