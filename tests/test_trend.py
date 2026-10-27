@@ -143,3 +143,8 @@ def test_a_drift_hidden_under_the_daily_cycle_is_found():
 
 def test_a_window_shorter_than_three_days_reports_nothing():
     assert check("oxigeno_mg_l", falling(per_day=0.4, days=2.0), critical_min=5.0) is None
+
+
+def test_too_few_readings_report_nothing():
+    assert check("oxigeno_mg_l", falling(per_day=0.4, days=6.0, n=MIN_READINGS - 1),
+                 critical_min=5.0) is None
