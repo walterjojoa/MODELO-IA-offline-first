@@ -185,3 +185,11 @@ def test_a_batch_with_nothing_recorded_does_not_invent_a_forecast():
     assert body["peso_proyectado_g"] is None
     assert body["supervivencia_pct"] is None
     assert len(body["notas"]) >= 2
+
+
+def test_the_horizon_has_a_cap():
+    # Projecting five years out with a batch's coefficient says nothing about the batch
+    assert client.post("/proyeccion-lote", json=batch_body(dias_adelante=2000),
+                       headers=KEY).status_code == 422
+    assert client.post("/proyeccion-lote", json=batch_body(dias_adelante=0),
+                       headers=KEY).status_code == 422
