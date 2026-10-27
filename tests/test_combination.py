@@ -184,3 +184,10 @@ def test_ph_keeps_its_capital_in_the_middle_of_a_sentence():
     assert in_sentence("pH") == "pH"
     assert in_sentence("Temperatura") == "temperatura"
     assert in_sentence("Oxígeno") == "oxígeno"
+
+
+def test_the_message_names_the_variables_the_way_a_person_would():
+    found = evaluate(with_newest(coupled(), temp_c=12.2, ph=7.52))
+    assert found is not None
+    assert "temperatura 12.2 °C" in found.message
+    assert "pH 7.52" in found.message
