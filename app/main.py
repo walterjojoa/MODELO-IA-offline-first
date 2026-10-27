@@ -131,3 +131,19 @@ class TrendResponse(BaseModel):
     limite: float | None
     urgente: bool
     mensaje: str
+
+
+@app.post("/tendencias", dependencies=[Depends(require_key)])
+def trends(request: TrendRequest) -> list[TrendResponse]:
+    """
+    Where each variable is heading, and when it would reach the rules' critical limit.
+
+    It answers what /anomalias deliberately does not: that one treats a slow trend as normal,
+    because its question is whether a reading is surprising. Oxygen falling 0.4 mg/L a day never
+    surprises anybody and is still on its way to a problem.
+    """
+    ranges = {r.variable: r.model_dump() for r in request.rangos}
+    found = trend.evaluate([r.model_dump() for r in request.lecturas], ranges)
+    return [TrendResponse(variable=t.variable, por_dia=t.per_day, acuerdo=t.agreement,
+                          dias_cubiertos=t.days_covered, dias_al_limite=t.days_to_limit,
+                          limite=t.limit, urgente=t.urgent, mensaje=t.message) for t in found]
