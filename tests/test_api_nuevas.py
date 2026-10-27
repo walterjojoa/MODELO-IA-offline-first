@@ -18,3 +18,8 @@ from app.main import app
 client = TestClient(app)
 START = datetime(2026, 10, 1, 6, tzinfo=timezone.utc)
 KEY = {"X-API-Key": "secreta"}
+
+
+@pytest.fixture(autouse=True)
+def key(monkeypatch):
+    monkeypatch.setenv("IA_API_KEY", "secreta")
