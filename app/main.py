@@ -114,3 +114,8 @@ class Range(BaseModel):
     variable: str
     critico_min: float | None = None
     critico_max: float | None = None
+
+
+class TrendRequest(BaseModel):
+    lecturas: list[Reading] = Field(min_length=1, max_length=500)
+    rangos: list[Range] = Field(default_factory=list)
