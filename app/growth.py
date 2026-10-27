@@ -229,3 +229,81 @@ def project(batch: Batch,
                              now, findings, notes)
     survival = _project_survival(batch, deaths, days_ahead, now, findings, notes)
     return Projection(days_ahead=days_ahead, findings=findings, notes=notes, **growth, **survival)
+
+
+def _project_growth(batch, weighings, temperatures, days_ahead, target, now, findings, notes) -> dict:
+    empty = {"tgc": None, "tgc_fitted": False, "mean_temp_c": None, "current_weight_g": None,
+             "projected_weight_g": None, "days_to_target": None, "target_date": None}
+
+    if weighings:
+        current = weighings[-1].average_g
+        since = weighings[-1].at
+    elif batch.stocked_weight_g and batch.stocked_on:
+        current = batch.stocked_weight_g
+        since = datetime.combine(batch.stocked_on, datetime.min.time(), tzinfo=now.tzinfo)
+    else:
+        notes.append("Sin biometrías ni peso de siembra no hay de dónde partir para proyectar el "
+                     "crecimiento. Basta con registrar un pesaje de muestra.")
+        return empty
+
+    if current <= 0:
+        notes.append("El peso registrado no es positivo, así que no se puede proyectar.")
+        return empty
+
+    celsius = mean_temperature(temperatures, since, now)
+    if celsius is None and temperatures:
+        celsius = median([t.celsius for t in temperatures])
+    if celsius is None:
+        notes.append("Sin lecturas de temperatura no se puede proyectar el crecimiento: la trucha "
+                     "crece con el calor acumulado del agua, no con los días que pasan.")
+        return empty
+
+    tgc, pairs = fit_tgc(weighings, temperatures)
+    fitted = tgc is not None
+    if not fitted:
+        tgc = REFERENCE_TGC
+        if len(weighings) < 2:
+            notes.append("El coeficiente de crecimiento es el de referencia, no el de esta finca. "
+                         "Con una segunda biometría pasa a calcularse con los datos del lote.")
+        else:
+            notes.append(f"Las biometrías están demasiado juntas (hacen falta al menos "
+                         f"{fmt(MIN_DAYS_BETWEEN_WEIGHINGS)} días entre dos) o les falta "
+                         f"temperatura en el tramo, así que se usa el de referencia.")
+
+    # A fitted coefficient at or below zero means the batch is losing weight. Projecting with it
+    # would give a weight falling to zero, which is not a forecast but an absurd extrapolation.
+    if fitted and tgc <= 0:
+        findings.append(Finding("crecimiento", True, round(abs(tgc), 3),
+                                f"El lote no está creciendo: entre las dos últimas biometrías el "
+                                f"peso promedio bajó. Con el agua a {fmt(celsius)} °C debería estar "
+                                f"subiendo. Revisar alimentación, densidad y sanidad."))
+        notes.append("No se proyecta peso hacia adelante: con el lote perdiendo peso, la cuenta "
+                     "daría un número sin sentido.")
+        return {**empty, "tgc": round(tgc, 3), "tgc_fitted": True,
+                "mean_temp_c": round(celsius, 2), "current_weight_g": round(current, 1)}
+
+    if fitted and tgc < REFERENCE_TGC * POOR_GROWTH_FRACTION:
+        findings.append(Finding("crecimiento", False, round(tgc / REFERENCE_TGC, 2),
+                                f"El lote crece a {round(100 * tgc / REFERENCE_TGC)}% de lo que el "
+                                f"agua a {fmt(celsius)} °C permitiría. La temperatura no es el "
+                                f"problema: mirar ración, densidad del estanque y sanidad."))
+
+    days_to_target = None
+    target_date = None
+    if target:
+        left = days_until(current, target, tgc, celsius)
+        if left is not None:
+            days_to_target = int(round(left))
+            # From the already-rounded days, so the date and the day count shown together cannot
+            # end up saying different things
+            target_date = (now + timedelta(days=days_to_target)).date()
+
+    return {
+        "tgc": round(tgc, 3),
+        "tgc_fitted": fitted,
+        "mean_temp_c": round(celsius, 2),
+        "current_weight_g": round(current, 1),
+        "projected_weight_g": round(weight_after(current, tgc, celsius, days_ahead), 1),
+        "days_to_target": days_to_target,
+        "target_date": target_date,
+    }
