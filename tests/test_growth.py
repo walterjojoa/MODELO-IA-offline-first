@@ -91,3 +91,10 @@ def test_without_temperature_nothing_is_projected():
     assert projection.projected_weight_g is None
     assert projection.tgc is None
     assert any("temperatura" in n for n in projection.notes)
+
+
+def test_without_weighings_or_a_stocked_weight_there_is_no_starting_point():
+    projection = project(Batch(STOCKED, 10000), temperatures=temperatures(13.0, 10),
+                         now=START + timedelta(days=10))
+    assert projection.current_weight_g is None
+    assert any("pesaje de muestra" in n for n in projection.notes)
