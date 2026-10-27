@@ -65,6 +65,39 @@ POST /pronostico-temperatura          (cabecera X-API-Key)
 Si faltan lecturas responde `"dias": []` con el motivo en `mensaje`; si Open-Meteo no responde, 503.
 Las coordenadas se cambian con las variables `LATITUD` y `LONGITUD`.
 
+## Tendencias
+
+`anomalies.py` trata una tendencia lenta como normal **a propósito**, y tiene razón: su pregunta es
+si una lectura sorprende, y el agua calentándose a lo largo de la mañana no sorprende. Pero eso deja
+un caso sin cubrir, y es el caro. El oxígeno bajando de 8.5 a 6.2 en una semana no sorprende a nadie
+—cada lectura está un poco por debajo de la anterior— y el nivel 1 tampoco se queja, porque 6.2
+sigue por encima del crítico de 5.0. Nadie dice nada hasta el día en que cruza, que es el día en que
+ya es tarde.
+
+Por cada variable se toma la **pendiente de Theil-Sen**: la mediana de las pendientes de todas las
+parejas de puntos. Theil-Sen y no mínimos cuadrados por lo mismo que `anomalies.py` usa medianas:
+el cuidador saca el sensor del agua y esa lectura queda en el historial. Medido, en una serie que
+baja 0.3 °C por día con una lectura así al final, **mínimos cuadrados reporta que el oxígeno sube**;
+Theil-Sen devuelve la pendiente real.
+
+El `acuerdo` —la fracción de parejas que coincide en el signo— separa una deriva real del ciclo del
+día. La ventana tiene que cubrir **al menos tres días**, y ese número salió de medirlo: sobre 40
+series simuladas de un día, las que **no** tenían tendencia sacaron más acuerdo (0.77 en el
+percentil 95) que las que **sí** la tenían (0.67 en el percentil 5). En una ventana de un día no hay
+umbral que sirva porque el orden está invertido. Con tres días, el corte de 0.65 detecta 92 % de las
+tendencias reales y no avisó de más ni una vez.
+
+```
+POST /tendencias          (cabecera X-API-Key)
+{"lecturas": [...], "rangos": [{"variable": "oxigeno_mg_l", "critico_min": 5.0, "critico_max": null}]}
+-> [{"variable": "oxigeno_mg_l", "por_dia": -0.4, "acuerdo": 1.0, "dias_cubiertos": 6.0,
+     "dias_al_limite": 3.0, "limite": 5.0, "urgente": false,
+     "mensaje": "Oxígeno viene bajando 0.4 mg/L por día (6 días de datos). A este ritmo llega al límite de 5 mg/L en 3 días."}]
+```
+
+Sin `rangos` la pendiente se reporta igual, porque "el oxígeno viene bajando 0.4 por día" vale
+saberlo solo; lo que no se puede calcular sin ellos es cuándo se vuelve un problema.
+
 ## Correr en local
 
 ```
