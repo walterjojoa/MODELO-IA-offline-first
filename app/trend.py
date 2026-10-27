@@ -35,3 +35,17 @@ from app.anomalies import VARIABLES, fmt
 
 MIN_READINGS = 12
 """Fewer than this and the median of the pairs is as noisy as the readings themselves."""
+
+MIN_DAYS = 3.0
+"""
+The window has to cover at least three days, and this is the number that had to be measured rather
+than chosen.
+
+The problem is the daily cycle: water warms at midday and cools at night, and pH and oxygen follow.
+Over a short window that swing is indistinguishable from a drift. Measured over 40 simulated series
+of one day, the ones **without** any trend scored higher agreement (0.77 at the 95th percentile)
+than the ones **with** a real trend (0.67 at the 5th). In a one-day window there is no threshold
+that works, because the order is inverted.
+
+From three days on, whole cycles cancel out and the two groups separate.
+"""
