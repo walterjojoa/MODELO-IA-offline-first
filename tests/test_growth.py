@@ -164,3 +164,7 @@ def test_a_batch_growing_well_gets_no_warning():
     projection = project(Batch(STOCKED, 10000), weighings=weighings,
                          temperatures=temperatures(13.0, days), now=START + timedelta(days=days))
     assert of_kind(projection, "crecimiento") == []
+
+
+def test_the_poor_growth_threshold_is_a_fraction_of_the_reference():
+    assert 0 < POOR_GROWTH_FRACTION < 1
