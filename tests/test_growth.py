@@ -98,3 +98,10 @@ def test_without_weighings_or_a_stocked_weight_there_is_no_starting_point():
                          now=START + timedelta(days=10))
     assert projection.current_weight_g is None
     assert any("pesaje de muestra" in n for n in projection.notes)
+
+
+def test_the_stocked_weight_serves_when_there_are_no_weighings():
+    projection = project(Batch(STOCKED, 10000, 4.0), temperatures=temperatures(13.0, 30),
+                         days_ahead=30, now=START + timedelta(days=30))
+    assert projection.current_weight_g == 4.0
+    assert projection.projected_weight_g > 4.0
