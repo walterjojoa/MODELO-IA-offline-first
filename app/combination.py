@@ -92,3 +92,35 @@ def solve(matrix: list[list[float]], vector: list[float]) -> list[float] | None:
         total = rows[r][n] - sum(rows[r][c] * answer[c] for c in range(r + 1, n))
         answer[r] = total / rows[r][r]
     return answer
+
+
+def distance(point: list[float], cloud: list[list[float]],
+             floors: list[float] | None = None) -> float | None:
+    """
+    How far the point is from the cloud, counting its shape. None when the cloud is too small.
+
+    `floors` is the smallest spread each column can have, normally the sensor's resolution. Without
+    it the arithmetic is exact and useless: see the note at the top of the module.
+    """
+    rows, columns = len(cloud), len(point)
+    if rows < columns + 1:
+        return None
+    floors = floors or [0.0] * columns
+
+    centre = [median([row[c] for row in cloud]) for c in range(columns)]
+    centred = [[row[c] - centre[c] for c in range(columns)] for row in cloud]
+    covariance = [[sum(r[i] * r[j] for r in centred) / (rows - 1) for j in range(columns)]
+                  for i in range(columns)]
+
+    for i in range(columns):
+        covariance[i][i] = max(covariance[i][i], floors[i] ** 2) + floors[i] ** 2
+    if sum(covariance[i][i] for i in range(columns)) <= 0:
+        return None  # nothing moved and no resolution given: no shape to measure against
+
+    delta = [point[c] - centre[c] for c in range(columns)]
+    weighted = solve(covariance, delta)
+    if weighted is None:
+        return None
+    squared = sum(d * w for d, w in zip(delta, weighted))
+    # A negative only comes from rounding when the point sits almost on the centre
+    return max(squared, 0.0) ** 0.5
