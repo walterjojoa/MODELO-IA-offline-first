@@ -56,3 +56,11 @@ whose shape is noise calls anything unusual.
 
 WINDOW = 200
 """Only the recent ones: the relationship between the variables of a pond changes with the season."""
+
+CUTOFF = {1: 2.576, 2: 3.035, 3: 3.368}
+"""
+Mahalanobis distance of a normal reading, at the 1 % tail of the chi-squared for that many degrees
+of freedom. One in a hundred normal readings crosses it by chance.
+
+Written down rather than computed so the service does not have to carry scipy for three numbers.
+"""
