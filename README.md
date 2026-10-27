@@ -7,8 +7,19 @@ Solo lo llama el backend: no tiene base de datos propia ni lo usa el frontend di
 |---|---|---|
 | 1 | Sistema experto: rangos de pH, temperatura y oxígeno, ración de alimento | backend (`Rules.java`) y la app sin internet |
 | 2 | Anomalías: valores raros *para ese estanque* aunque estén dentro del rango | **aquí** (`app/anomalies.py`) |
+| 2 | Tendencias: hacia dónde va una variable y cuándo cruzaría el límite | **aquí** (`app/trend.py`) |
+| 2 | Combinaciones: lecturas que ninguna variable sola delata | **aquí** (`app/combination.py`) |
 | 2 | Pronóstico de la temperatura del agua a partir de la del aire (Open-Meteo) | **aquí** (`app/forecast.py`) |
+| 2 | Proyección del lote: peso, fecha de cosecha y supervivencia | **aquí** (`app/growth.py`) |
 | 3 | Asistente que explica con datos del backend, nunca inventa números | aquí, pendiente |
+
+Los tres detectores de agua responden preguntas distintas y **no se pisan**:
+
+| Módulo | La pregunta que responde | Lo que atrapa |
+|---|---|---|
+| `anomalies.py` | ¿esta lectura sorprende para este estanque? | un salto |
+| `trend.py` | ¿hacia dónde va, y cuánto falta para que sea un problema? | una deriva |
+| `combination.py` | ¿esta lectura es una que este estanque nunca produce? | una pareja de valores nueva |
 
 ## Anomalías
 
