@@ -75,3 +75,27 @@ def test_least_squares_would_invert_the_sign_with_one_bad_reading():
 def test_slope_needs_two_distinct_times():
     assert slope([3.0], [9.0]) is None
     assert slope([3.0, 3.0], [9.0, 8.0]) is None
+
+
+# ---------- what the anomaly detector lets through on purpose ----------
+
+def test_the_drift_that_anomalies_does_not_flag_is_flagged_here():
+    """
+    The hole this module fills, with both detectors run side by side on the same data.
+
+    Oxygen falls 0.4 mg/L a day for six days, from 8.6 to 6.2. Every reading is a little below the
+    last, so nothing is ever surprising and anomalies.py says nothing — correctly. And 6.2 is still
+    above the rules' critical 5.0, so level 1 says nothing either. Between them, a pond on its way
+    to a problem that nobody mentions until the day it arrives.
+    """
+    points = falling(per_day=0.4, days=6.0)
+    values = [value for _, value in points]
+    assert values[-1] > OXYGEN["critico_min"], "the limit must not have been crossed yet"
+
+    assert anomaly_check("oxigeno_mg_l", values[:-1], values[-1]) is None
+
+    trend = check("oxigeno_mg_l", points, **{"critical_min": OXYGEN["critico_min"]})
+    assert trend is not None
+    assert trend.per_day < 0
+    assert trend.days_to_limit is not None and trend.days_to_limit <= 7
+    assert "bajando" in trend.message and "límite de 5" in trend.message
