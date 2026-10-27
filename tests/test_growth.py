@@ -64,3 +64,14 @@ def test_one_bad_weighing_does_not_define_the_batch():
     fitted, pairs = fit_tgc(weighings, temperatures(13.0, days * 4))
     assert fitted == pytest.approx(2.0, abs=0.05)
     assert pairs == 4
+
+
+# ---------- when the reference is used, and when nothing is projected ----------
+
+def test_a_single_weighing_uses_the_reference_and_says_so():
+    projection = project(Batch(STOCKED, 10000), weighings=[Weighing(START, 20.0)],
+                         temperatures=temperatures(13.0, 1), now=START)
+    assert not projection.tgc_fitted
+    assert projection.tgc == REFERENCE_TGC
+    assert any("referencia" in n for n in projection.notes)
+    assert any("segunda biometría" in n for n in projection.notes)
