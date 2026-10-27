@@ -65,3 +65,6 @@ anything. Losing the 8 % noisiest trends costs less than losing their trust.
 
 HORIZON_DAYS = 7
 """Beyond a week the straight line says more about the line than about the pond."""
+
+URGENT_DAYS = 2
+"""Closer than this and it stops being something to watch and becomes something to do today."""
