@@ -192,3 +192,13 @@ def test_a_healthy_batch_gets_no_mortality_warning():
                          temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
     assert projection.survival_pct == 93.0
     assert of_kind(projection, "mortalidad") == []
+
+
+def test_the_projected_quantity_uses_the_daily_rate():
+    projection = project(Batch(STOCKED, 1000),
+                         deaths=[Death(START + timedelta(days=i), 1) for i in range(1, 51)],
+                         temperatures=temperatures(13.0, 50), days_ahead=30,
+                         now=START + timedelta(days=50))
+    assert projection.deaths_per_day == pytest.approx(1.0, abs=0.05)
+    assert projection.current_quantity == 950
+    assert projection.projected_quantity == pytest.approx(920, abs=2)
