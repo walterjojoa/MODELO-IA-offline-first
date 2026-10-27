@@ -106,3 +106,19 @@ def test_a_jump_is_the_other_module_s_business():
     flat = [9.0, 9.1, 8.9, 9.2, 8.8, 9.0, 9.1, 8.9, 9.0, 9.1, 8.9, 9.0, 9.2, 8.8, 9.1, 6.0]
     assert check("oxigeno_mg_l", series(flat), critical_min=5.0) is None
     assert anomaly_check("oxigeno_mg_l", flat[:-1], flat[-1]) is not None
+
+
+# ---------- the window, which had to be measured ----------
+
+def test_one_day_of_the_daily_cycle_would_invent_a_trend():
+    """
+    Why MIN_DAYS exists, demonstrated instead of asserted.
+
+    A clean daily cycle with no trend at all scores more agreement than the minimum demanded. If a
+    one-day window were accepted, the service would report a drop that does not exist every time the
+    caretaker measured through a single day.
+    """
+    points = daily_cycle(days=1)
+    days = [(when - START).total_seconds() / 86400 for when, _ in points]
+    _, agreement = slope(days, [v for _, v in points])
+    assert agreement > MIN_AGREEMENT
