@@ -32,3 +32,6 @@ from datetime import datetime, timedelta
 from statistics import median
 
 from app.anomalies import VARIABLES, fmt
+
+MIN_READINGS = 12
+"""Fewer than this and the median of the pairs is as noisy as the readings themselves."""
