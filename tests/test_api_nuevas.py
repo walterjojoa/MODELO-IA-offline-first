@@ -165,3 +165,16 @@ def test_the_projection_says_when_the_coefficient_is_not_this_farms():
         headers=KEY).json()
     assert body["tgc_ajustado"] is False
     assert any("referencia" in n for n in body["notas"])
+
+
+def test_what_cannot_be_worked_out_goes_into_notes_and_not_as_a_zero():
+    """
+    A projected weight of 0 g and an unknown projected weight are not the same thing. If the service
+    returned zero, the screen would show a batch that is never going to grow.
+    """
+    body = client.post("/proyeccion-lote", json=batch_body(lecturas=[]), headers=KEY).json()
+    assert body["peso_proyectado_g"] is None
+    assert body["tgc"] is None
+    assert any("temperatura" in n for n in body["notas"])
+    # And survival was still worked out: what is missing does not take down what is there
+    assert body["supervivencia_pct"] == 97.0
