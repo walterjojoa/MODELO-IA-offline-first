@@ -178,3 +178,10 @@ def test_what_cannot_be_worked_out_goes_into_notes_and_not_as_a_zero():
     assert any("temperatura" in n for n in body["notas"])
     # And survival was still worked out: what is missing does not take down what is there
     assert body["supervivencia_pct"] == 97.0
+
+
+def test_a_batch_with_nothing_recorded_does_not_invent_a_forecast():
+    body = client.post("/proyeccion-lote", json={}, headers=KEY).json()
+    assert body["peso_proyectado_g"] is None
+    assert body["supervivencia_pct"] is None
+    assert len(body["notas"]) >= 2
