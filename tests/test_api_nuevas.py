@@ -145,3 +145,15 @@ def batch_body(**extra):
     }
     body.update(extra)
     return body
+
+
+def test_the_projection_gives_the_weight_and_the_harvest_date():
+    response = client.post("/proyeccion-lote", json=batch_body(), headers=KEY)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["tgc_ajustado"] is True, "with two weighings it is fitted to this farm"
+    assert body["peso_actual_g"] == 28.0
+    assert body["peso_proyectado_g"] > body["peso_actual_g"]
+    assert body["dias_para_objetivo"] > 0
+    assert body["fecha_objetivo"] is not None
+    assert body["supervivencia_pct"] == 97.0
