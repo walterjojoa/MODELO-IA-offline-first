@@ -162,3 +162,11 @@ def test_the_cutoff_grows_with_the_number_of_variables():
 
 def test_more_variables_than_expected_fall_back_to_the_last_cutoff():
     assert cutoff_for(9) == cutoff_for(3)
+
+
+# ---------- the order the readings arrive in ----------
+
+def test_readings_out_of_order_give_the_same_answer():
+    readings = with_newest(coupled(), temp_c=12.2, ph=7.52)
+    shuffled = [readings[-1]] + readings[:-1]
+    assert evaluate(shuffled) == evaluate(readings)
