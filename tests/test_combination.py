@@ -35,3 +35,9 @@ def coupled(n=40, seed=7):
             "ph": round(7.2 + 0.35 * phase + rng.uniform(-0.02, 0.02), 3),
         })
     return rows
+
+
+def with_newest(history, **values):
+    newest = {"registrado_en": history[-1]["registrado_en"] + timedelta(hours=6)}
+    newest.update(values)
+    return history + [newest]
