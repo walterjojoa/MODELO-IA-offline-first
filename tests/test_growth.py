@@ -37,3 +37,16 @@ def test_fitting_recovers_the_coefficient_the_data_was_made_with(tgc, celsius, d
     fitted, pairs = fit_tgc(weighings, temperatures(celsius, days))
     assert fitted == pytest.approx(tgc, abs=0.01)
     assert pairs == 1
+
+
+def test_trout_grow_with_heat_and_not_with_days():
+    """The fact the whole model rests on: same batch, same days, different water."""
+    batch = Batch(STOCKED, 10000, 5.0)
+    common = dict(weighings=[Weighing(START, 20.0)], days_ahead=60, now=START)
+
+    cold = project(batch, temperatures=temperatures(9.0, 1), **common)
+    warm = project(batch, temperatures=temperatures(15.0, 1), **common)
+
+    assert warm.projected_weight_g > cold.projected_weight_g
+    # And not marginally: six degrees change the answer appreciably
+    assert warm.projected_weight_g > 1.5 * cold.projected_weight_g
