@@ -49,3 +49,16 @@ that works, because the order is inverted.
 
 From three days on, whole cycles cancel out and the two groups separate.
 """
+
+MIN_AGREEMENT = 0.65
+"""
+With a three-day window the thresholds were swept:
+
+    0.60 -> catches 97 % of real trends, but calls 5 % of flat series a trend
+    0.65 -> catches 92 %, and never called a flat series a trend
+    0.70 -> catches 71 %, gaining nothing in precision
+
+0.65 it is. The 5 % of the looser threshold reads like little, but it is the caretaker getting one
+false alarm in twenty: by the third they stop looking at them, and then none of this is worth
+anything. Losing the 8 % noisiest trends costs less than losing their trust.
+"""
