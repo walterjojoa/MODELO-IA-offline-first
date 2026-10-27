@@ -75,3 +75,5 @@ Theil-Sen compares every pair, so the work grows with the square: 300 readings a
 resolve instantly, 5 000 would be 12 million and leave the backend waiting. The most recent ones are
 the ones that matter.
 """
+
+SECONDS_PER_DAY = 86400.0
