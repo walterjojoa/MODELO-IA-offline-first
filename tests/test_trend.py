@@ -139,3 +139,7 @@ def test_a_drift_hidden_under_the_daily_cycle_is_found():
     points = daily_cycle(days=MIN_DAYS, drift_per_day=0.25, base=7.6)
     trend = check("ph", points, critical_min=6.0, critical_max=9.0)
     assert trend is not None and trend.per_day < 0
+
+
+def test_a_window_shorter_than_three_days_reports_nothing():
+    assert check("oxigeno_mg_l", falling(per_day=0.4, days=2.0), critical_min=5.0) is None
