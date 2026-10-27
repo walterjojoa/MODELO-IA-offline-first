@@ -168,3 +168,18 @@ def test_a_batch_growing_well_gets_no_warning():
 
 def test_the_poor_growth_threshold_is_a_fraction_of_the_reference():
     assert 0 < POOR_GROWTH_FRACTION < 1
+
+
+# ---------- survival: a ceiling, and said as one ----------
+
+def test_survival_is_reported_as_a_ceiling():
+    projection = project(Batch(STOCKED, 1000),
+                         deaths=[Death(START + timedelta(days=10), 250)],
+                         temperatures=temperatures(13.0, 30), now=START + timedelta(days=30))
+    assert projection.current_quantity == 750
+    assert projection.survival_pct == 75.0
+
+    found = of_kind(projection, "mortalidad")
+    assert found, "75% is below the 80% expected"
+    # What cannot be known, said: fry that die without being recorded are not counted
+    assert "techo" in found[0].message
