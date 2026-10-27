@@ -182,3 +182,15 @@ class WeighingInput(BaseModel):
 class DeathInput(BaseModel):
     registrado_en: datetime
     cantidad: int
+
+
+class BatchRequest(BaseModel):
+    fecha_siembra: date | None = None
+    cantidad_inicial: int | None = None
+    peso_inicial_g: float | None = None
+    biometrias: list[WeighingInput] = Field(default_factory=list, max_length=200)
+    mortalidades: list[DeathInput] = Field(default_factory=list, max_length=2000)
+    # The pond's, not the batch's: that is where the water is
+    lecturas: list[Reading] = Field(default_factory=list, max_length=5000)
+    dias_adelante: int = Field(default=30, ge=1, le=365)
+    peso_objetivo_g: float | None = Field(default=None, gt=0)
