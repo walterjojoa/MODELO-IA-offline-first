@@ -221,3 +221,36 @@ class ProjectionResponse(BaseModel):
     hallazgos: list[FindingResponse]
     notas: list[str]
     """What could not be worked out and what is missing to be able to. It stops a null reading as a zero."""
+
+
+@app.post("/proyeccion-lote", dependencies=[Depends(require_key)])
+def batch_projection(request: BatchRequest) -> ProjectionResponse:
+    """
+    What the batch will weigh, when it reaches market weight, and how many will be left.
+
+    Worked out on the spot and never stored: a projection kept from a month ago, made with the data
+    of a month ago, is worse than none, because it looks current and is not.
+    """
+    projection = growth.project(
+        growth.Batch(request.fecha_siembra, request.cantidad_inicial, request.peso_inicial_g),
+        weighings=[growth.Weighing(w.registrado_en, w.peso_promedio_g, w.muestra)
+                   for w in request.biometrias],
+        deaths=[growth.Death(d.registrado_en, d.cantidad) for d in request.mortalidades],
+        temperatures=[growth.Temperature(r.registrado_en, r.temp_c)
+                      for r in request.lecturas if r.temp_c is not None],
+        days_ahead=request.dias_adelante,
+        target_weight_g=request.peso_objetivo_g,
+        now=datetime.now(timezone.utc),
+    )
+    return ProjectionResponse(
+        dias_adelante=projection.days_ahead, tgc=projection.tgc,
+        tgc_ajustado=projection.tgc_fitted, temp_media_c=projection.mean_temp_c,
+        peso_actual_g=projection.current_weight_g,
+        peso_proyectado_g=projection.projected_weight_g,
+        dias_para_objetivo=projection.days_to_target, fecha_objetivo=projection.target_date,
+        cantidad_actual=projection.current_quantity,
+        cantidad_proyectada=projection.projected_quantity,
+        supervivencia_pct=projection.survival_pct, muertes_por_dia=projection.deaths_per_day,
+        hallazgos=[FindingResponse(clase=f.kind, urgente=f.urgent, puntaje=f.score,
+                                   mensaje=f.message) for f in projection.findings],
+        notas=projection.notes)
