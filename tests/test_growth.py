@@ -183,3 +183,12 @@ def test_survival_is_reported_as_a_ceiling():
     assert found, "75% is below the 80% expected"
     # What cannot be known, said: fry that die without being recorded are not counted
     assert "techo" in found[0].message
+
+
+def test_a_healthy_batch_gets_no_mortality_warning():
+    projection = project(Batch(STOCKED, 1000),
+                         deaths=[Death(START + timedelta(days=5), 40),
+                                 Death(START + timedelta(days=20), 30)],
+                         temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
+    assert projection.survival_pct == 93.0
+    assert of_kind(projection, "mortalidad") == []
