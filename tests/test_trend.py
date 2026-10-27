@@ -174,3 +174,9 @@ def test_without_limits_the_slope_is_still_reported():
     assert trend is not None
     assert trend.days_to_limit is None
     assert "bajando" in trend.message
+
+
+def test_a_limit_already_crossed_is_the_rules_business():
+    # Below the critical 5.0 already: level 1 is shouting about it, no date to add
+    trend = check("oxigeno_mg_l", falling(per_day=0.4, days=6.0, start=6.5), critical_min=5.0)
+    assert trend is not None and trend.days_to_limit is None
