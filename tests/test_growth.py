@@ -105,3 +105,15 @@ def test_the_stocked_weight_serves_when_there_are_no_weighings():
                          days_ahead=30, now=START + timedelta(days=30))
     assert projection.current_weight_g == 4.0
     assert projection.projected_weight_g > 4.0
+
+
+# ---------- the harvest date, which is the number the producer wants ----------
+
+def test_it_says_how_many_days_to_market_weight():
+    projection = project(Batch(STOCKED, 10000), weighings=[Weighing(START, 50.0)],
+                         temperatures=temperatures(13.0, 1), target_weight_g=250.0, now=START)
+    assert projection.days_to_target > 0
+    assert projection.target_date == (START + timedelta(days=projection.days_to_target)).date()
+
+    # Checked independently: the weight projected to those days has to give the target
+    assert grown(50.0, projection.tgc, 13.0, projection.days_to_target) == pytest.approx(250.0, rel=0.02)
