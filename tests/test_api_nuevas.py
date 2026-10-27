@@ -104,3 +104,8 @@ def test_a_combination_never_seen_comes_back_with_its_distance():
     assert found["variables"] == ["temp_c", "ph"]
     assert found["distancia"] > found["corte"]
     assert "no se había visto" in found["mensaje"]
+
+
+def test_a_reading_that_follows_the_pattern_comes_back_null():
+    body = {"lecturas": coupled(extra={"temp_c": 16.9, "ph": 7.54})}
+    assert client.post("/combinaciones", json=body, headers=KEY).json() is None
