@@ -68,3 +68,6 @@ twenty days, fifteen of them quiet. Measured on the same test batch, the third g
 earlier rate and the week gives 9.5, which is what is actually happening. A week is also the unit a
 pond gets looked at in.
 """
+
+MIN_EARLIER_DAYS = 7.0
+"""Some history before the window is needed to have anything to compare against."""
