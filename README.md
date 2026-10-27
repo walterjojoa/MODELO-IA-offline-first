@@ -98,6 +98,37 @@ POST /tendencias          (cabecera X-API-Key)
 Sin `rangos` la pendiente se reporta igual, porque "el oxígeno viene bajando 0.4 por día" vale
 saberlo solo; lo que no se puede calcular sin ellos es cuándo se vuelve un problema.
 
+## Combinaciones
+
+Una lectura puede tener todos sus valores dentro de lo que ese estanque hace y seguir siendo una que
+ese estanque nunca produce. En un estanque donde la temperatura y el pH se mueven juntos —el sol del
+mediodía calienta el agua y las algas suben el pH con él— 12 °C es corriente y 7.5 de pH también,
+pero los dos juntos nunca pasan, porque el pH alto de ese estanque viene del mediodía y el agua de
+mediodía no está a 12 °C. Que aparezca significa que algo distinto al ciclo del día está moviendo el
+pH.
+
+Se usa la **distancia de Mahalanobis** de la lectura nueva a la nube de las anteriores: la distancia
+que cuenta la *forma* de la nube, así que un punto fuera de la relación entre las variables sale
+lejos aunque cada coordenada esté cerca. El corte es la cola del 1 % de la chi cuadrado.
+
+La dispersión de cada variable se pisa con la **resolución del sensor**, y eso hizo falta
+descubrirlo con una prueba que fallaba: con una nube sin ruido, un punto cuatro milésimas fuera de la
+curva salía a distancia 3.61 contra un corte de 3.04. Una desviación menor que lo que el instrumento
+distingue no es una desviación. Es la misma idea que `anomalies.py` ya aplica a un estanque cuyas
+lecturas nunca se movieron.
+
+```
+POST /combinaciones          (cabecera X-API-Key)
+{"lecturas": [...]}
+-> {"variables": ["temp_c", "ph"], "valores": [12.2, 7.52], "distancia": 6.4, "corte": 3.035,
+    "mensaje": "Esta combinación no se había visto en el estanque: temperatura 12.2 °C, pH 7.52. ..."}
+```
+
+`null` significa que no hay nada que reportar, y cubre dos cosas: que la lectura sigue el patrón, o
+que todavía no hay historia para saberlo (hacen falta 20 lecturas completas). Solo cuentan las
+lecturas que traen **todas** las variables: rellenar un hueco con el promedio de la columna
+inventaría una combinación que nadie midió, y la combinación es justo lo que aquí se juzga.
+
 ## Correr en local
 
 ```
