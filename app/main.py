@@ -3,16 +3,16 @@ recent readings and stores whatever comes back as alerts. This service has no da
 
 import hmac
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from urllib.error import URLError
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
-from app import anomalies, forecast, open_meteo
+from app import anomalies, combination, forecast, growth, open_meteo, trend
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 COLOMBIA = timedelta(hours=-5)
 """Colombia has no daylight saving time, so a fixed offset is exact."""
 
