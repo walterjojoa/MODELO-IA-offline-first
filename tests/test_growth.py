@@ -50,3 +50,17 @@ def test_trout_grow_with_heat_and_not_with_days():
     assert warm.projected_weight_g > cold.projected_weight_g
     # And not marginally: six degrees change the answer appreciably
     assert warm.projected_weight_g > 1.5 * cold.projected_weight_g
+
+
+def test_one_bad_weighing_does_not_define_the_batch():
+    """The median of the pairs, not the last pair: a bad sample does not decide the forecast."""
+    days = 30
+    weights = [5.0]
+    for _ in range(3):
+        weights.append(grown(weights[-1], 2.0, 13.0, days))
+    weights.append(weights[-1] * 0.6)  # a sample of the small fish of the pond
+
+    weighings = [Weighing(START + timedelta(days=days * i), w) for i, w in enumerate(weights)]
+    fitted, pairs = fit_tgc(weighings, temperatures(13.0, days * 4))
+    assert fitted == pytest.approx(2.0, abs=0.05)
+    assert pairs == 4
