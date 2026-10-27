@@ -77,3 +77,17 @@ the ones that matter.
 """
 
 SECONDS_PER_DAY = 86400.0
+
+
+@dataclass(frozen=True)
+class Trend:
+    variable: str
+    per_day: float
+    """Change per day. The sign is the direction."""
+    agreement: float
+    days_covered: float
+    days_to_limit: float | None
+    """None when there is no limit to head towards, or the limit is further than the horizon."""
+    limit: float | None
+    urgent: bool
+    message: str
