@@ -88,3 +88,28 @@ def test_without_a_floor_a_degenerate_cloud_gives_no_answer():
 
 def test_a_pond_that_never_moved_gives_no_answer():
     assert distance([12.0, 7.0], [[12.0, 7.0]] * 30) is None
+
+
+# ---------- what no single variable shows ----------
+
+def test_cold_water_with_high_ph_is_caught_while_each_value_passes():
+    """
+    The claim this module is built on, with the other detector run on the same data to prove it.
+
+    12.2 °C is an ordinary temperature for this pond and 7.52 an ordinary pH — the first happens
+    every night and the second every noon. What never happened is the two together, because this
+    pond's high pH comes from the midday sun and midday water is not at 12 °C.
+    """
+    history = coupled()
+    readings = with_newest(history, temp_c=12.2, ph=7.52)
+
+    # Variable by variable, the reading passes: anomalies.py has nothing to say about either
+    for variable in ("temp_c", "ph"):
+        values = [r[variable] for r in history]
+        assert anomaly_check(variable, values, readings[-1][variable]) is None
+
+    found = evaluate(readings)
+    assert found is not None
+    assert found.distance > found.cutoff
+    assert found.variables == ("temp_c", "ph")
+    assert "no se había visto" in found.message
