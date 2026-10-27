@@ -38,3 +38,13 @@ def daily_cycle(days, swing=0.3, drift_per_day=0.0, base=7.2, seed=None):
             value += rng.uniform(-0.05, 0.05)
         out.append((START + timedelta(hours=hour), round(value, 3)))
     return out
+
+
+# ---------- the slope itself ----------
+
+def test_slope_finds_a_clean_drop():
+    days = [float(i) for i in range(10)]
+    values = [9.0 - 0.4 * i for i in range(10)]
+    per_day, agreement = slope(days, values)
+    assert round(per_day, 6) == -0.4
+    assert agreement == 1.0
