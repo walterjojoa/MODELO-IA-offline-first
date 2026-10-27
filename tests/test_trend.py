@@ -48,3 +48,25 @@ def test_slope_finds_a_clean_drop():
     per_day, agreement = slope(days, values)
     assert round(per_day, 6) == -0.4
     assert agreement == 1.0
+
+
+def test_least_squares_would_invert_the_sign_with_one_bad_reading():
+    """
+    The measurement that decides the method, and the reason anomalies.py's medians are not enough
+    here either.
+
+    Twelve readings dropping 0.3 °C a day, and the last one taken with the sensor already out of the
+    water. Least squares reports the oxygen **rising**; Theil-Sen returns the real slope. Saying
+    "it is going up" while the pond empties of oxygen is the one mistake that cannot be made.
+    """
+    days = [float(i) for i in range(12)]
+    values = [9.0 - 0.3 * i for i in range(12)]
+    values[11] = 21.0
+
+    robust, _ = slope(days, values)
+    mean_x, mean_y = sum(days) / 12, sum(values) / 12
+    least_squares = (sum((x - mean_x) * (y - mean_y) for x, y in zip(days, values))
+                     / sum((x - mean_x) ** 2 for x in days))
+
+    assert round(robust, 6) == -0.3
+    assert least_squares > 0
