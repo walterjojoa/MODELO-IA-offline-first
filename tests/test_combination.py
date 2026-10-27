@@ -73,3 +73,14 @@ def test_distance_survives_two_variables_that_move_identically():
     cloud = [[x, x] for x in column]
     far = distance([9.5, 9.5], cloud, FLOORS)
     assert far is not None and far == far  # not NaN
+
+
+def test_without_a_floor_a_degenerate_cloud_gives_no_answer():
+    """
+    Readings that fall exactly on a curve, with no sensor noise, carry no usable shape. Answering a
+    number there would mean reporting an anomaly for a reading off the curve by less than the
+    instrument can measure: measured, distance 3.61 against a cutoff of 3.04 for four thousandths
+    of pH. No answer is the right answer.
+    """
+    column = [9.0 + i * 0.05 for i in range(20)]
+    assert distance([9.5, 9.5], [[x, x] for x in column]) is None
