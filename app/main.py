@@ -119,3 +119,15 @@ class Range(BaseModel):
 class TrendRequest(BaseModel):
     lecturas: list[Reading] = Field(min_length=1, max_length=500)
     rangos: list[Range] = Field(default_factory=list)
+
+
+class TrendResponse(BaseModel):
+    variable: str
+    por_dia: float
+    acuerdo: float
+    """Share of the compared pairs agreeing on the direction: it tells a drift from the daily cycle."""
+    dias_cubiertos: float
+    dias_al_limite: float | None
+    limite: float | None
+    urgente: bool
+    mensaje: str
