@@ -209,3 +209,10 @@ def test_more_deaths_than_stocked_is_reported_as_inconsistent_data():
                          temperatures=temperatures(13.0, 30), now=START + timedelta(days=30))
     assert projection.current_quantity == 0
     assert any("pasan la cantidad sembrada" in n for n in projection.notes)
+
+
+def test_without_the_stocked_quantity_survival_is_not_worked_out():
+    projection = project(Batch(STOCKED), deaths=[Death(START, 10)],
+                         temperatures=temperatures(13.0, 10), now=START + timedelta(days=10))
+    assert projection.survival_pct is None
+    assert any("cantidad sembrada" in n for n in projection.notes)
