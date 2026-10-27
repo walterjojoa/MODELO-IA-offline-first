@@ -122,3 +122,9 @@ def test_a_reading_that_follows_the_pattern_passes():
 
 def test_a_reading_in_the_middle_of_the_pattern_passes():
     assert evaluate(with_newest(coupled(), temp_c=14.5, ph=7.2)) is None
+
+
+# ---------- when it keeps quiet ----------
+
+def test_too_little_history_gives_no_answer():
+    assert evaluate(with_newest(coupled(n=MIN_HISTORY - 1), temp_c=12.2, ph=7.52)) is None
