@@ -104,3 +104,10 @@ class Death:
 class Temperature:
     at: datetime
     celsius: float
+
+
+@dataclass(frozen=True)
+class Batch:
+    stocked_on: date | None = None
+    stocked_quantity: int | None = None
+    stocked_weight_g: float | None = None
