@@ -7,3 +7,4 @@ from app.growth import (MIN_DAYS_BETWEEN_WEIGHINGS, POOR_GROWTH_FRACTION, REFERE
 
 UTC = timezone.utc
 STOCKED = date(2026, 6, 1)
+START = datetime(2026, 6, 1, 6, tzinfo=UTC)
