@@ -92,3 +92,9 @@ class Weighing:
     at: datetime
     average_g: float
     sample: int | None = None
+
+
+@dataclass(frozen=True)
+class Death:
+    at: datetime
+    quantity: int
