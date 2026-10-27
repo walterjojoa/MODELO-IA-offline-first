@@ -187,3 +187,14 @@ def test_a_rise_heads_for_the_upper_limit():
     trend = check("temp_c", rising, critical_min=6.0, critical_max=18.0)
     assert trend is not None
     assert trend.per_day > 0 and "subiendo" in trend.message
+
+
+# ---------- evaluate ----------
+
+def test_evaluate_looks_at_every_variable_and_skips_missing_values():
+    readings = []
+    for i, (when, oxygen) in enumerate(falling(per_day=0.4, days=6.0)):
+        readings.append({"registrado_en": when, "oxigeno_mg_l": oxygen,
+                         "temp_c": 12.0 if i % 2 else None, "ph": None})
+    found = evaluate(readings, {"oxigeno_mg_l": OXYGEN, "temp_c": TEMPERATURE})
+    assert [t.variable for t in found] == ["oxigeno_mg_l"]
