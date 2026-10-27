@@ -210,3 +210,12 @@ def test_evaluate_works_without_ranges():
 def test_evaluate_on_a_healthy_pond_reports_nothing():
     readings = [{"registrado_en": when, "ph": value} for when, value in daily_cycle(days=5)]
     assert evaluate(readings, {"ph": {"critico_min": 6.0, "critico_max": 9.0}}) == []
+
+
+def test_readings_out_of_order_give_the_same_answer():
+    # They arrive from several phones syncing whenever they find signal, so the order they were
+    # stored in is not the order they were measured in
+    points = falling(per_day=0.4, days=6.0)
+    shuffled = [points[-1]] + points[:-1]
+    assert check("oxigeno_mg_l", shuffled, critical_min=5.0) == check(
+        "oxigeno_mg_l", points, critical_min=5.0)
