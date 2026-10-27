@@ -255,3 +255,20 @@ def test_without_deaths_no_acceleration_is_invented():
                          temperatures=temperatures(13.0, 60), now=START + timedelta(days=60))
     assert projection.survival_pct == 100.0
     assert of_kind(projection, "mortalidad") == []
+
+
+# ---------- a batch with deaths but no temperature ----------
+
+def test_a_batch_with_deaths_but_no_temperature_still_answers_what_it_can():
+    """
+    The caretaker writes down the deaths before taking the sensor down to the water, so a batch with
+    mortalities and no temperature readings is the most ordinary thing in the world. What can be
+    worked out is worked out; what cannot goes into notes instead of coming back as a zero.
+    """
+    projection = project(Batch(STOCKED, 1000, 5.0),
+                         deaths=[Death(START + timedelta(days=5), 300)],
+                         temperatures=[], now=START + timedelta(days=30))
+    assert projection.survival_pct == 70.0
+    assert projection.current_quantity == 700
+    assert projection.projected_weight_g is None
+    assert any("temperatura" in n for n in projection.notes)
