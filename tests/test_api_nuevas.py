@@ -157,3 +157,11 @@ def test_the_projection_gives_the_weight_and_the_harvest_date():
     assert body["dias_para_objetivo"] > 0
     assert body["fecha_objetivo"] is not None
     assert body["supervivencia_pct"] == 97.0
+
+
+def test_the_projection_says_when_the_coefficient_is_not_this_farms():
+    body = client.post("/proyeccion-lote", json=batch_body(biometrias=[
+        {"registrado_en": "2026-07-31T06:00:00+00:00", "peso_promedio_g": 28.0}]),
+        headers=KEY).json()
+    assert body["tgc_ajustado"] is False
+    assert any("referencia" in n for n in body["notas"])
