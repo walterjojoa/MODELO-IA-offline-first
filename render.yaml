@@ -10,3 +10,6 @@ services:
       # La misma clave va en el backend, que es el único que llama a este servicio
       - key: IA_API_KEY
         generateValue: true
+      # Clave de Anthropic para el asistente (Claude). Se pone a mano en el panel de Render
+      - key: ANTHROPIC_API_KEY
+        sync: false

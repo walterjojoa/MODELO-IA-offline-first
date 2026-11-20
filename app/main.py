@@ -10,9 +10,9 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
-from app import anomalies, combination, forecast, growth, open_meteo, trend
+from app import anomalies, assistant, combination, forecast, growth, open_meteo, trend
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 COLOMBIA = timedelta(hours=-5)
 """Colombia has no daylight saving time, so a fixed offset is exact."""
 
@@ -53,7 +53,7 @@ def home() -> RedirectResponse:
 
 @app.get("/salud")
 def health() -> dict:
-    return {"estado": "ok", "version": VERSION}
+    return {"estado": "ok", "version": VERSION, "asistente": assistant.configured()}
 
 
 @app.post("/anomalias", dependencies=[Depends(require_key)])
@@ -254,3 +254,35 @@ def batch_projection(request: BatchRequest) -> ProjectionResponse:
         hallazgos=[FindingResponse(clase=f.kind, urgente=f.urgent, puntaje=f.score,
                                    mensaje=f.message) for f in projection.findings],
         notas=projection.notes)
+
+
+class ChatTurn(BaseModel):
+    rol: str = Field(pattern="^(usuario|asistente)$")
+    texto: str = Field(max_length=20000)
+
+
+class AssistantRequest(BaseModel):
+    pregunta: str = Field(min_length=1, max_length=4000)
+    datos_finca: dict = Field(default_factory=dict)
+    """El estado de la finca que arma el backend: estanques, lecturas, lotes, raciones, alertas, rangos."""
+    historial: list[ChatTurn] = Field(default_factory=list, max_length=40)
+
+
+class AssistantResponse(BaseModel):
+    respuesta: str
+    modelo: str
+
+
+@app.post("/asistente", dependencies=[Depends(require_key)])
+def ask_assistant(request: AssistantRequest) -> AssistantResponse:
+    """
+    Preguntas e informes sobre la finca, respondidos por Claude Opus 5.5 (Anthropic) con los datos que
+    manda el backend. La ración de alimento la calcula el sistema experto del backend; el asistente la usa
+    y la explica, no la inventa.
+    """
+    try:
+        answer = assistant.ask(request.pregunta, request.datos_finca,
+                               [assistant.Turn(t.rol, t.texto) for t in request.historial])
+    except assistant.AssistantError as e:
+        raise HTTPException(status_code=e.status, detail=e.message) from e
+    return AssistantResponse(respuesta=answer.respuesta, modelo=answer.modelo)

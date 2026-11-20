@@ -11,7 +11,7 @@ Solo lo llama el backend: no tiene base de datos propia ni lo usa el frontend di
 | 2 | Combinaciones: lecturas que ninguna variable sola delata | **aquí** (`app/combination.py`) |
 | 2 | Pronóstico de la temperatura del agua a partir de la del aire (Open-Meteo) | **aquí** (`app/forecast.py`) |
 | 2 | Proyección del lote: peso, fecha de cosecha y supervivencia | **aquí** (`app/growth.py`) |
-| 3 | Asistente que explica con datos del backend, nunca inventa números | aquí, pendiente |
+| 3 | Asistente (Claude Opus 5.5): preguntas, informes y cuánto dar de comer, con datos del backend | **aquí** (`app/assistant.py`) |
 
 Los tres detectores de agua responden preguntas distintas y **no se pisan**:
 
@@ -180,6 +180,27 @@ la última semana contra todo lo anterior. "Reciente" es una semana fija y no un
 del lote, porque un brote mata en cuatro o cinco días: medido sobre el mismo lote de prueba, el
 último tercio daba 2.6 veces la tasa anterior y la semana da 9.5, que es lo que de verdad pasa. Un
 lote puede llevar 95 % de supervivencia acumulada y estar en plena mortandad esta semana.
+
+## Asistente (nivel 3)
+
+```
+POST /asistente          (cabecera X-API-Key)
+{"pregunta": "¿Cuánto les doy de comer hoy?",
+ "datos_finca": { ...estado de la finca que arma el backend... },
+ "historial": [{"rol": "usuario", "texto": "..."}, {"rol": "asistente", "texto": "..."}]}
+→ {"respuesta": "texto en Markdown", "modelo": "claude-opus-5-5"}
+```
+
+- **Modelo:** Claude Opus 5.5 de Anthropic (`claude-opus-5-5`), con esfuerzo `medium` y respaldo
+  automático (`fallbacks: "default"`) si el modelo declina una pregunta por sus políticas de seguridad.
+- **No inventa números.** El backend le manda estanques, últimas lecturas, lotes activos con su resumen
+  (población, peso, biomasa, supervivencia), alertas pendientes y rangos. La **ración de alimento** la
+  calcula el sistema experto del backend (`racion_diaria_kg`, nivel 1); el asistente la usa, la reparte
+  en tomas y la explica. Si falta un dato, dice qué hay que registrar.
+- **Clave:** variable `ANTHROPIC_API_KEY` en este servicio (Render → Environment). Se crea en
+  https://console.anthropic.com con saldo prepagado. Sin ella la ruta responde 503 y `/salud` dice
+  `"asistente": false`.
+- Cada pregunta cuesta del orden de 1 a 3 centavos de dólar.
 
 ## Correr en local
 
